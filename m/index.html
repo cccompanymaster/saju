@@ -34,11 +34,22 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@400;700;900&display=swap" />
 
   <link rel="stylesheet" href="/m/css/app.css?v=20260601-joseon" />
+  <link rel="stylesheet" href="/m/css/idol-hero.css?v=20260601-idol" />
 
   <!-- TossPayments 결제 SDK -->
   <script src="https://js.tosspayments.com/v2/standard"></script>
 </head>
 <body>
+
+  <!-- 실사진 머리카락 흔들림용 SVG 필터 (img에 class="idol-breeze" 부여 시 적용) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <filter id="breeze" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="2" seed="7" result="noise">
+        <animate attributeName="baseFrequency" dur="9s" values="0.012 0.018; 0.016 0.014; 0.012 0.018" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="9" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
 
   <div class="splash" id="splash" role="status" aria-label="로딩 중">
     <span class="seal" aria-hidden="true">四柱</span>
@@ -63,21 +74,44 @@
 
     <main id="top" class="has-sticky-cta">
 
-      <!-- ===== 히어로 (조선의 밤) ===== -->
-      <section class="hero" aria-label="조선사주">
-        <span class="hero__badge">마자샘 김경희 특허출원 리딩 구조 기반</span>
-        <div class="hero__art">
-          <img src="/m/img/wh1.png" alt="조선사주 사주 리딩"
-               width="240" height="240" loading="eager" fetchpriority="high" decoding="async"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
-          <span class="hero__art-fallback" style="display:none" aria-hidden="true">🌙</span>
+      <!-- ===== 스크롤 모핑 히어로 (조선의 밤) ===== -->
+      <!-- 실제 사진 교체: /m/img/idols/idol-1.webp 등을 넣으면 자동 사용.
+           머리카락 흔들림(실사진)은 <img> 에 class="idol-breeze" 추가. 자세히는 docs/IDOL_HERO.md -->
+      <section class="idol-hero" aria-label="조선사주">
+        <div class="idol-hero__track">
+          <div class="idol-hero__stage">
+            <div class="idol-dots" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
+
+            <div class="idol-frame">
+              <div class="idol-layer" data-name="첫 번째 인연" style="opacity:1">
+                <img src="/m/img/idols/idol-1.webp" alt="조선사주 메인 인물 1"
+                     width="600" height="800" loading="eager" fetchpriority="high" decoding="async"
+                     onerror="this.onerror=null;this.src='/m/img/idols/portrait-1.svg';" />
+              </div>
+              <div class="idol-layer" data-name="두 번째 인연">
+                <img src="/m/img/idols/idol-2.webp" alt="조선사주 메인 인물 2"
+                     width="600" height="800" loading="lazy" decoding="async"
+                     onerror="this.onerror=null;this.src='/m/img/idols/portrait-2.svg';" />
+              </div>
+              <div class="idol-layer" data-name="세 번째 인연">
+                <img src="/m/img/idols/idol-3.webp" alt="조선사주 메인 인물 3"
+                     width="600" height="800" loading="lazy" decoding="async"
+                     onerror="this.onerror=null;this.src='/m/img/idols/portrait-3.svg';" />
+              </div>
+            </div>
+
+            <div class="idol-copy">
+              <p class="idol-name">첫 번째 인연</p>
+              <h1 class="hero__title">조선사주</h1>
+              <p class="hero__title-sub">朝 鮮 四 柱</p>
+              <p class="hero__headline">생년월일로 사주를 풀어<br />지금의 흐름을 읽어드립니다.</p>
+              <a href="#search" class="btn btn--gold js-scroll">✦ 무료로 내 사주 맛보기</a>
+              <p class="hero__micro">무료 맛보기 · 약 1분 · 결제 없음</p>
+            </div>
+
+            <p class="idol-scroll-hint" aria-hidden="true">스크롤 ↓</p>
+          </div>
         </div>
-        <h1 class="hero__title">조선사주</h1>
-        <p class="hero__title-sub">朝 鮮 四 柱</p>
-        <p class="hero__headline">생년월일로 사주를 풀어<br />지금의 흐름을 읽어드립니다.</p>
-        <div class="hero__topics" aria-label="주제"><span>돈</span><span>사랑</span><span>일</span><span>관계</span></div>
-        <a href="#search" class="btn btn--gold js-scroll">✦ 무료로 내 사주 맛보기</a>
-        <p class="hero__micro">무료 맛보기 · 약 1분 · 결제 없음</p>
       </section>
 
       <div class="stat-strip" aria-live="polite">✦ 지금까지 <strong id="stat-count">12,800</strong>명이 사주를 보았습니다 ✦</div>
@@ -241,6 +275,7 @@
     <div class="wrap"><a href="#search" class="btn btn--gold js-scroll">✦ 무료 사주 맛보기</a></div>
   </div>
 
+  <script src="/m/js/idol-hero.js?v=20260601-idol"></script>
   <script src="/m/js/funnel.js?v=20260601-joseon"></script>
 </body>
 </html>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" role="img" aria-label="자리표시 초상 — 자색 한복">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a2a4d"/><stop offset="1" stop-color="#1d1330"/>
+    </linearGradient>
+    <linearGradient id="hair3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a3a26"/><stop offset="1" stop-color="#2e1a10"/>
+    </linearGradient>
+    <linearGradient id="hanbok3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8e5aa8"/><stop offset="1" stop-color="#5d3576"/>
+    </linearGradient>
+    <radialGradient id="skin3" cx="0.5" cy="0.42" r="0.62">
+      <stop offset="0" stop-color="#ffe8d8"/><stop offset="1" stop-color="#f3c8ae"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="600" height="800" fill="url(#bg3)"/>
+  <ellipse cx="300" cy="300" rx="230" ry="250" fill="#ffffff" opacity="0.06"/>
+
+  <path d="M150 360 C150 180 250 110 300 110 C350 110 450 180 450 360 C470 540 440 680 420 760 L180 760 C160 680 130 540 150 360 Z" fill="url(#hair3)"/>
+
+  <path d="M110 800 C130 650 220 590 300 590 C380 590 470 650 490 800 Z" fill="url(#hanbok3)"/>
+  <path d="M300 590 L360 660 L300 720 L240 660 Z" fill="#f7f0df"/>
+  <path d="M252 648 L300 700 L348 648" fill="none" stroke="#f7f0df" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M300 660 C320 700 318 760 360 790" fill="none" stroke="#46295a" stroke-width="10" stroke-linecap="round"/>
+
+  <rect x="272" y="470" width="56" height="90" rx="26" fill="#f3c8ae"/>
+  <ellipse cx="300" cy="350" rx="108" ry="132" fill="url(#skin3)"/>
+
+  <path d="M196 360 C188 240 250 168 300 168 C350 168 412 240 404 360 C404 300 360 250 300 250 C240 250 196 300 196 360 Z" fill="url(#hair3)"/>
+
+  <g>
+    <path d="M198 300 C152 410 160 560 182 710 C152 560 150 420 198 300 Z" fill="url(#hair3)"/>
+    <animateTransform attributeName="transform" type="rotate"
+      values="-2.0 198 300; 2.8 198 300; -2.0 198 300" dur="4.4s" repeatCount="indefinite"
+      calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </g>
+  <g>
+    <path d="M402 300 C448 410 440 560 418 710 C448 560 450 420 402 300 Z" fill="url(#hair3)"/>
+    <animateTransform attributeName="transform" type="rotate"
+      values="2.4 402 300; -2.6 402 300; 2.4 402 300" dur="5.0s" repeatCount="indefinite"
+      calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+  </g>
+
+  <path d="M250 348 q22 -16 44 0" fill="none" stroke="#3a2a22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M306 348 q22 -16 44 0" fill="none" stroke="#3a2a22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M244 318 q26 -12 50 -2" fill="none" stroke="#5a3a26" stroke-width="5" stroke-linecap="round"/>
+  <path d="M306 316 q24 -10 50 2" fill="none" stroke="#5a3a26" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="262" cy="392" rx="20" ry="12" fill="#f3a08c" opacity="0.45"/>
+  <ellipse cx="338" cy="392" rx="20" ry="12" fill="#f3a08c" opacity="0.45"/>
+  <path d="M286 408 q14 10 28 0" fill="none" stroke="#cf7d6a" stroke-width="4" stroke-linecap="round"/>
+  <path d="M282 430 q18 16 36 0" fill="#b14f8a"/>
+
+  <circle cx="300" cy="196" r="9" fill="#c9a64a"/>
+  <circle cx="300" cy="196" r="3" fill="#46295a"/>
+</svg>

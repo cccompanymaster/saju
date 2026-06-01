@@ -226,7 +226,7 @@
     });
 
     // 하단 고정 CTA
-    var cta = $('#sticky-cta'), hero = $('.hero'), search = $('#search');
+    var cta = $('#sticky-cta'), hero = $('.idol-hero') || $('.hero'), search = $('#search');
     if (cta && hero && search && 'IntersectionObserver' in window) {
       var hv = true, sv = false;
       var io = new IntersectionObserver(function (es) {
