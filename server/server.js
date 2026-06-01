@@ -1,6 +1,6 @@
 'use strict';
 /**
- * server.js — 마녀의 리뷰 사주 백엔드 + 정적 서빙
+ * server.js — 조선사주 백엔드 + 정적 서빙
  *
  * 퍼널:
  *   ① 광고 → ② 무료 랜딩(/m/) → POST /api/free-reading (사주+AI 맛보기)
@@ -120,7 +120,7 @@ function publicSaju(s) {
 
 const PORT = Number(process.env.PORT || 3000);
 app.listen(PORT, () => {
-  console.log(`🔮 마녀의 리뷰 서버: http://localhost:${PORT}/m/`);
+  console.log(`🏯 조선사주 서버: http://localhost:${PORT}/m/`);
   console.log(`   AI(Gemini): ${process.env.GEMINI_API_KEY ? 'ON' : 'mock'} | Toss: ${process.env.TOSS_SECRET_KEY ? 'ON' : 'mock'} | 가격: ${AMOUNT}원`);
 });
 

@@ -1,6 +1,6 @@
 'use strict';
 /**
- * funnel.js — 마녀의 리뷰 퍼널 클라이언트
+ * funnel.js — 조선사주 퍼널 클라이언트
  * ① 무료 맛보기(/api/free-reading) → ② Toss 결제 → ③ 승인+심층(/api/payment/confirm) → ④ 화면+발송
  */
 (function () {
@@ -8,7 +8,8 @@
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var STORE = 'maja_pending'; // 결제 리다이렉트 전후 상태 보존
 
-  var OHAENG_COLORS = { 목: '#7ec96b', 화: '#f0795b', 토: '#e8c766', 금: '#d8dde3', 수: '#6bb6f0' };
+  // 오행 = 전통 오방색 (목靑·화赤·토黃·금白·수黑)
+  var OHAENG_COLORS = { 목: '#2e6da4', 화: '#c0392b', 토: '#c9a227', 금: '#7e8790', 수: '#2b2b38' };
   var state = { saju: null, birth: null };
 
   /* ---------- 유틸 ---------- */
@@ -137,7 +138,7 @@
           method: 'CARD',
           amount: { currency: 'KRW', value: amount },
           orderId: orderId,
-          orderName: '마녀의 리뷰 사주 심층 리딩',
+          orderName: '조선사주 심층 사주 리딩',
           successUrl: location.origin + '/m/?pay=success',
           failUrl: location.origin + '/m/?pay=fail',
         });
@@ -155,7 +156,7 @@
     if (!pending) throw new Error('결제 정보를 찾을 수 없습니다. 다시 시도해 주세요.');
 
     show($('#paid-result'));
-    $('#paid-body').innerHTML = '<div class="loading-inline"><span class="spinner"></span> 마녀가 리딩을 적고 있어요…</div>';
+    $('#paid-body').innerHTML = '<div class="loading-inline"><span class="spinner"></span> 사주를 풀어 적고 있습니다…</div>';
     scrollTo($('#paid-result'));
 
     return api('/api/payment/confirm', {

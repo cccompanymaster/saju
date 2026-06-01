@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f0a0a" />
-  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#16263f" />
+  <meta name="color-scheme" content="light" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="마녀의 리뷰" />
+  <meta name="apple-mobile-web-app-title" content="조선사주" />
 
-  <title>마녀의 리뷰 — 사주 보석카드 무료 리딩</title>
-  <meta name="description" content="생년월일로 사주를 풀고 보석카드로 지금의 흐름을 읽습니다. 무료 맛보기 · 약 1분 · 결제 없음. 심층 리딩은 3,900원." />
+  <title>조선사주(朝鮮四柱) — 생년월일로 보는 무료 사주 맛보기</title>
+  <meta name="description" content="생년월일로 사주(四柱)를 풀고 지금의 흐름을 읽습니다. 무료 맛보기 · 약 1분 · 결제 없음. 심층 리딩은 3,900원. 마자샘 김경희의 특허출원 리딩 구조 기반." />
   <link rel="canonical" href="https://basic.majatalk.com/m/" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="마녀의 리뷰" />
-  <meta property="og:title" content="마녀의 리뷰 — 사주 보석카드 리딩" />
-  <meta property="og:description" content="생년월일로 보는 무료 사주 맛보기. 돈·사랑·일·관계의 흐름을 살펴보세요." />
+  <meta property="og:site_name" content="조선사주" />
+  <meta property="og:title" content="조선사주(朝鮮四柱) — 무료 사주 맛보기" />
+  <meta property="og:description" content="생년월일로 보는 무료 사주. 돈·사랑·일·관계의 흐름을 조선의 명리로 읽어드립니다." />
   <meta property="og:url" content="https://basic.majatalk.com/m/" />
   <meta property="og:image" content="https://basic.majatalk.com/assets/og-image-v4.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -31,9 +31,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&family=Nanum+Myeongjo:wght@400;700;800&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@400;700;900&display=swap" />
 
-  <link rel="stylesheet" href="/m/css/app.css?v=20260601b" />
+  <link rel="stylesheet" href="/m/css/app.css?v=20260601-joseon" />
 
   <!-- TossPayments 결제 SDK -->
   <script src="https://js.tosspayments.com/v2/standard"></script>
@@ -41,16 +41,19 @@
 <body>
 
   <div class="splash" id="splash" role="status" aria-label="로딩 중">
-    <div class="splash__mark">🔮</div>
-    <p class="splash__name">마녀의 리뷰</p>
-    <p class="splash__sub">생년월일이 말해주는 당신의 흐름</p>
+    <span class="seal" aria-hidden="true">四柱</span>
+    <p class="splash__name">조선사주</p>
+    <p class="splash__sub">생년월일이 말해주는 당신의 사주</p>
   </div>
 
   <div class="app-shell">
 
     <header class="site-header">
       <div class="wrap site-header__inner">
-        <div class="brand"><span class="brand__mark" aria-hidden="true">🔮</span><span class="brand__name">마녀의 리뷰</span></div>
+        <div class="brand">
+          <span class="seal" aria-hidden="true">四</span>
+          <span class="brand__name">조선사주</span>
+        </div>
         <div class="lang" role="group" aria-label="언어 선택">
           <button type="button" class="lang__btn" data-lang="KOR" aria-pressed="true">KOR</button>
           <button type="button" class="lang__btn" data-lang="ENG" aria-pressed="false">ENG</button>
@@ -60,41 +63,42 @@
 
     <main id="top" class="has-sticky-cta">
 
-      <!-- ===== 히어로 ===== -->
-      <section class="hero wrap" aria-label="마녀의 리뷰">
-        <span class="hero__badge">사주 · 특허출원 리딩 구조 기반</span>
+      <!-- ===== 히어로 (조선의 밤) ===== -->
+      <section class="hero" aria-label="조선사주">
+        <span class="hero__badge">마자샘 김경희 특허출원 리딩 구조 기반</span>
         <div class="hero__art">
-          <img src="/m/img/wh1.png" alt="마녀의 리뷰 사주 보석카드 리딩"
-               width="320" height="320" loading="eager" fetchpriority="high" decoding="async"
+          <img src="/m/img/wh1.png" alt="조선사주 사주 리딩"
+               width="240" height="240" loading="eager" fetchpriority="high" decoding="async"
                onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
           <span class="hero__art-fallback" style="display:none" aria-hidden="true">🌙</span>
         </div>
-        <h1 class="hero__title">마녀의 리뷰</h1>
-        <p class="hero__headline">생년월일로 사주를 풀고<br />지금의 흐름을 읽어드립니다.</p>
+        <h1 class="hero__title">조선사주</h1>
+        <p class="hero__title-sub">朝 鮮 四 柱</p>
+        <p class="hero__headline">생년월일로 사주를 풀어<br />지금의 흐름을 읽어드립니다.</p>
         <div class="hero__topics" aria-label="주제"><span>돈</span><span>사랑</span><span>일</span><span>관계</span></div>
-        <a href="#search" class="btn btn--gold js-scroll">✨ 무료로 내 사주 맛보기</a>
+        <a href="#search" class="btn btn--gold js-scroll">✦ 무료로 내 사주 맛보기</a>
         <p class="hero__micro">무료 맛보기 · 약 1분 · 결제 없음</p>
       </section>
 
-      <div class="stat-strip" aria-live="polite">✨ <strong id="stat-count">12,800</strong>명이 사주 리딩을 경험했습니다 ✨</div>
+      <div class="stat-strip" aria-live="polite">✦ 지금까지 <strong id="stat-count">12,800</strong>명이 사주를 보았습니다 ✦</div>
 
       <!-- ===== 무엇을 보나요 ===== -->
       <section class="section wrap" aria-label="무료 리딩 안내">
-        <p class="eyebrow">Free Reading</p>
-        <h2 class="section-title">무료 맛보기로<br />무엇을 보나요?</h2>
-        <p class="section-sub">생년월일로 계산한 당신의 사주(네 기둥)와 타고난 기질을 읽어드립니다.</p>
+        <p class="eyebrow">무료 맛보기</p>
+        <h2 class="section-title">무료로<br />무엇을 보나요?</h2>
+        <p class="section-sub">생년월일로 세운 당신의 사주(네 기둥)와 타고난 기질을 읽어드립니다.</p>
         <div class="feature-grid">
-          <div class="feature"><span class="feature__ico" aria-hidden="true">🜂</span><div><p class="feature__t">타고난 기질</p><p class="feature__d">일간(나)과 오행으로 본 성향.</p></div></div>
-          <div class="feature"><span class="feature__ico" aria-hidden="true">🗝️</span><div><p class="feature__t">지금의 흐름</p><p class="feature__d">강한 기운과 비어 있는 자리.</p></div></div>
-          <div class="feature"><span class="feature__ico" aria-hidden="true">🚪</span><div><p class="feature__t">더 깊은 문</p><p class="feature__d">질문에 답하는 심층 리딩으로.</p></div></div>
+          <div class="feature"><span class="feature__ico" aria-hidden="true">命</span><div><p class="feature__t">타고난 기질</p><p class="feature__d">일간(나)과 오행으로 본 성향.</p></div></div>
+          <div class="feature"><span class="feature__ico" aria-hidden="true">運</span><div><p class="feature__t">지금의 흐름</p><p class="feature__d">강한 기운과 비어 있는 자리.</p></div></div>
+          <div class="feature"><span class="feature__ico" aria-hidden="true">問</span><div><p class="feature__t">더 깊은 답</p><p class="feature__d">질문에 답하는 심층 리딩으로.</p></div></div>
         </div>
       </section>
 
       <!-- ===== 입력 폼 (무료) ===== -->
       <section id="search" class="section wrap" aria-label="사주 정보 입력">
-        <p class="eyebrow">Your Saju</p>
-        <h2 class="section-title">생년월일을<br />입력해 주세요</h2>
-        <p class="section-sub">정확할수록, 마녀님의 풀이가 더 선명해집니다.</p>
+        <p class="eyebrow">사주 입력</p>
+        <h2 class="section-title">생년월일을<br />적어 주세요</h2>
+        <p class="section-sub">정확할수록, 풀이가 더 선명해집니다.</p>
 
         <form class="form" id="form-reading" autocomplete="on" novalidate>
           <div class="field">
@@ -133,10 +137,10 @@
 
           <div class="field">
             <label class="label" for="birth-place">태어난 곳 (선택)</label>
-            <input class="input" type="text" id="birth-place" placeholder="예: 서울" autocomplete="off" />
+            <input class="input" type="text" id="birth-place" placeholder="예: 한양(서울)" autocomplete="off" />
           </div>
 
-          <button type="submit" class="btn btn--gold" id="btn-free">✨ 무료 사주 맛보기 보기</button>
+          <button type="submit" class="btn btn--gold" id="btn-free">✦ 무료 사주 맛보기 보기</button>
           <p class="form-error is-hidden" id="form-error"></p>
         </form>
 
@@ -169,7 +173,7 @@
           <div class="field" style="margin-bottom:14px;text-align:left">
             <label class="label" for="worry">지금 가장 궁금한 한 가지</label>
             <textarea class="textarea" id="worry" rows="4" maxlength="100" placeholder='예: "지금 이직을 해도 될까요?"'></textarea>
-            <p class="hero__micro" id="worry-counter" aria-live="polite" style="text-align:right;margin:6px 0 0">0 / 100</p>
+            <p class="hero__micro" id="worry-counter" aria-live="polite" style="text-align:right;margin:6px 0 0;color:var(--ink-faint)">0 / 100</p>
           </div>
 
           <div class="row-2" style="text-align:left">
@@ -184,14 +188,14 @@
           </div>
 
           <div class="paid__benefits" style="margin-top:14px">
-            <p>✅ 질문에 대한 마녀의 판정</p>
-            <p>✅ 명리·오행·십성 통합 리딩</p>
-            <p>✅ 좋은 시기와 주의할 시기</p>
-            <p>✅ 지금 해야 할 행동 조언</p>
-            <p>✅ 결과를 이메일·카톡으로 발송</p>
+            <p>✓ 질문에 대한 명확한 판정</p>
+            <p>✓ 명리·오행·십성 통합 리딩</p>
+            <p>✓ 좋은 시기와 주의할 시기</p>
+            <p>✓ 지금 해야 할 행동 조언</p>
+            <p>✓ 결과를 이메일·카톡으로 발송</p>
           </div>
 
-          <button type="button" class="btn btn--plum" id="btn-paid">☕ 3,900원으로 심층 리딩 열기</button>
+          <button type="button" class="btn btn--plum" id="btn-paid">☵ 3,900원으로 심층 사주 열기</button>
           <p class="form-error is-hidden" id="pay-error"></p>
           <p class="paid__patent">📌 마자샘 김경희의 특허출원 리딩 구조 기반<br />출생 정보와 질문을 바탕으로 심층 리딩을 구성합니다.</p>
         </div>
@@ -200,7 +204,7 @@
       <!-- ===== 심층 결과 (결제 후) ===== -->
       <section id="paid-result" class="section wrap is-hidden" aria-label="심층 리딩 결과">
         <div class="result-head">
-          <p class="result-head__name">🔮 심층 리딩 완료</p>
+          <p class="result-head__name">✦ 심층 사주 완료</p>
           <p class="result-head__meta" id="paid-meta"></p>
         </div>
         <div class="reading-body" id="paid-body"></div>
@@ -212,11 +216,11 @@
       <section class="section wrap" aria-label="리딩 제작 안내">
         <div class="accordion">
           <details class="acc">
-            <summary>이 리딩은 어떻게 만들어졌나요?</summary>
+            <summary>이 사주는 어떻게 만들어졌나요?</summary>
             <div class="acc__body">
-              <p>마녀의 리뷰는 마자샘 김경희의 특허출원 리딩 구조를 바탕으로 합니다.</p>
-              <p>사주·오행·십성의 상징 체계를 함께 살펴 지금의 흐름을 문화적·상징적으로 읽어드립니다.</p>
-              <p style="color:var(--muted)">의료·법률·투자·재무·심리치료 등 전문 자문을 대체하지 않습니다.</p>
+              <p>조선사주는 마자샘 김경희의 특허출원 리딩 구조를 바탕으로 합니다.</p>
+              <p>사주(四柱)·오행·십성의 상징 체계를 함께 살펴 지금의 흐름을 문화적·상징적으로 읽어드립니다.</p>
+              <p style="color:var(--ink-faint)">의료·법률·투자·재무·심리치료 등 전문 자문을 대체하지 않습니다.</p>
             </div>
           </details>
         </div>
@@ -228,15 +232,15 @@
         <button type="button" class="lang__btn" data-lang="KOR" aria-pressed="true">한글</button>
         <button type="button" class="lang__btn" data-lang="ENG" aria-pressed="false">EN</button>
       </div>
-      <p class="site-footer__disc">사주·명리·보석카드를 함께 읽는 문화적·상징적 리딩입니다.</p>
-      <p>© 2026 마녀의 리뷰 · All Rights Reserved</p>
+      <p class="site-footer__disc">사주(四柱)·명리의 상징 체계를 함께 읽는 문화적·상징적 리딩입니다.</p>
+      <p>© 2026 조선사주 · All Rights Reserved</p>
     </footer>
   </div>
 
   <div class="sticky-cta" id="sticky-cta">
-    <div class="wrap"><a href="#search" class="btn btn--gold js-scroll">✨ 무료 사주 맛보기</a></div>
+    <div class="wrap"><a href="#search" class="btn btn--gold js-scroll">✦ 무료 사주 맛보기</a></div>
   </div>
 
-  <script src="/m/js/funnel.js?v=20260601"></script>
+  <script src="/m/js/funnel.js?v=20260601-joseon"></script>
 </body>
 </html>

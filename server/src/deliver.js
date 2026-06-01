@@ -13,13 +13,16 @@ function buildEmailHtml(name, readingText) {
     .split('\n')
     .map((line) => (line.trim() ? `<p style="margin:0 0 12px;line-height:1.7">${escapeHtml(line)}</p>` : ''))
     .join('');
-  return `<!DOCTYPE html><html lang="ko"><body style="margin:0;background:#0f0a0a;padding:24px;font-family:'Noto Serif KR',serif">
-    <div style="max-width:560px;margin:auto;background:#160e10;border:1px solid rgba(212,175,55,.3);border-radius:16px;padding:28px;color:#f5ecd8">
-      <h1 style="color:#d4af37;font-size:20px;margin:0 0 4px">🔮 마녀의 리뷰 — 심층 리딩</h1>
-      <p style="color:#9a8c84;font-size:13px;margin:0 0 20px">${escapeHtml(name)}님을 위한 사주 리딩</p>
+  return `<!DOCTYPE html><html lang="ko"><body style="margin:0;background:#0d1a2e;padding:24px;font-family:'Nanum Myeongjo','Noto Serif KR',serif">
+    <div style="max-width:560px;margin:auto;background:#f7f0df;border:1px solid #a9842f;border-radius:6px;padding:28px;color:#221b14">
+      <table style="border-collapse:collapse;margin:0 0 4px"><tr>
+        <td style="background:#b8362a;color:#fff;width:34px;height:34px;text-align:center;font-weight:800;border-radius:4px">四</td>
+        <td style="padding-left:10px;color:#221b14;font-size:20px;font-weight:800">조선사주 — 심층 사주</td>
+      </tr></table>
+      <p style="color:#93826a;font-size:13px;margin:8px 0 20px">${escapeHtml(name)}님을 위한 사주 리딩</p>
       ${body}
-      <hr style="border:none;border-top:1px solid rgba(212,175,55,.2);margin:20px 0" />
-      <p style="color:#9a8c84;font-size:12px;line-height:1.6;margin:0">명리·점성술·보석카드를 함께 읽는 문화적·상징적 리딩입니다. 의료·법률·투자·재무·심리치료 등 전문 자문을 대체하지 않습니다.</p>
+      <hr style="border:none;border-top:1px solid #d8c39a;margin:20px 0" />
+      <p style="color:#93826a;font-size:12px;line-height:1.6;margin:0">사주(四柱)·명리의 상징 체계를 함께 읽는 문화적·상징적 리딩입니다. 의료·법률·투자·재무·심리치료 등 전문 자문을 대체하지 않습니다.</p>
     </div></body></html>`;
 }
 
@@ -37,9 +40,9 @@ async function sendEmail(to, name, readingText) {
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
   });
   await transporter.sendMail({
-    from: process.env.SMTP_FROM || '"마녀의 리뷰" <no-reply@majatalk.com>',
+    from: process.env.SMTP_FROM || '"조선사주" <no-reply@majatalk.com>',
     to,
-    subject: `🔮 ${name}님의 사주 심층 리딩이 도착했습니다`,
+    subject: `[조선사주] ${name}님의 심층 사주가 도착했습니다`,
     html: buildEmailHtml(name, readingText),
   });
   return { ok: true, mock: false, channel: 'email', to };

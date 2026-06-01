@@ -1,7 +1,7 @@
 {
-  "name": "maja-saju-server",
+  "name": "joseon-saju-server",
   "version": "1.0.0",
-  "description": "마녀의 리뷰 — 사주 리딩 백엔드 (무료 맛보기 + Toss 결제 + 이메일/카톡 발송)",
+  "description": "조선사주 — 사주 리딩 백엔드 (무료 맛보기 + Toss 결제 + 이메일/카톡 발송)",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
