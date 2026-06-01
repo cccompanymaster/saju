@@ -292,8 +292,24 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     initUX();
+    initDemoBadge();
     $('#form-reading').addEventListener('submit', onFreeSubmit);
     $('#btn-paid').addEventListener('click', onPayClick);
     handleReturn();
   });
+
+  /* 키 미설정 시 데모(mock) 모드 안내 배지 */
+  function initDemoBadge() {
+    fetch('/api/config').then(function (r) { return r.json(); }).then(function (c) {
+      if (!c || (c.clientKey && c.aiEnabled)) return;
+      var miss = [];
+      if (!c.clientKey) miss.push('결제');
+      if (!c.aiEnabled) miss.push('AI');
+      var b = document.createElement('div');
+      b.className = 'demo-badge';
+      b.textContent = '🧪 데모 모드 · ' + miss.join('·') + ' mock';
+      b.title = '실제 키(.env)를 설정하면 자동으로 실서비스로 전환됩니다.';
+      document.body.appendChild(b);
+    }).catch(function () {});
+  }
 })();

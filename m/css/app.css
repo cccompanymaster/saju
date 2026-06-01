@@ -669,6 +669,24 @@ body::before {
   margin: 8px 0 0;
 }
 
+/* 데모 모드 배지 */
+.demo-badge {
+  position: fixed;
+  left: 10px;
+  bottom: calc(76px + var(--safe-bottom));
+  z-index: 70;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ffd9a8;
+  background: rgba(40, 20, 10, 0.9);
+  border: 1px solid rgba(240, 150, 60, 0.4);
+  border-radius: 99px;
+  padding: 6px 11px;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
 /* ---------- 모션 감소 사용자 배려 ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
