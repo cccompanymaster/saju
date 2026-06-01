@@ -1,0 +1,22 @@
+{
+  "name": "maja-saju-server",
+  "version": "1.0.0",
+  "description": "마녀의 리뷰 — 사주 리딩 백엔드 (무료 맛보기 + Toss 결제 + 이메일/카톡 발송)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node test/smoke.js"
+  },
+  "engines": { "node": ">=18" },
+  "keywords": ["saju", "fortune", "tosspayments", "express"],
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "lunar-javascript": "^1.7.7",
+    "nodemailer": "^8.0.10"
+  }
+}
