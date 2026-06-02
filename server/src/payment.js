@@ -5,13 +5,14 @@
  * TOSS_SECRET_KEY 가 없으면 개발용 mock 승인.
  */
 const AMOUNT = Number(process.env.READING_PRICE || 3900);
+function badReq(msg) { const e = new Error(msg); e.status = 400; return e; }
 
 async function confirmPayment({ paymentKey, orderId, amount }) {
   if (!paymentKey || !orderId || amount == null) {
-    throw new Error('결제 정보(paymentKey, orderId, amount)가 부족합니다.');
+    throw badReq('결제 정보(paymentKey, orderId, amount)가 부족합니다.');
   }
   if (Number(amount) !== AMOUNT) {
-    throw new Error(`결제 금액 불일치: 기대 ${AMOUNT}, 수신 ${amount}`);
+    throw badReq(`결제 금액이 올바르지 않습니다 (기대 ${AMOUNT}원).`);
   }
 
   const secret = process.env.TOSS_SECRET_KEY;

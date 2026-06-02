@@ -18,19 +18,30 @@ const { freeReading, paidReading } = require('./src/reading');
 const { confirmPayment, AMOUNT } = require('./src/payment');
 const { deliver } = require('./src/deliver');
 const { renderPdf } = require('./src/pdf');
+const U = require('./src/util');
 
 const app = express();
+app.set('trust proxy', true);
+app.use(U.securityHeaders);
 app.use(express.json({ limit: '64kb' }));
 
 // 정적 파일(루트의 /m, /assets 등) 서빙
 const ROOT = path.join(__dirname, '..');
 app.use(express.static(ROOT, { extensions: ['html'] }));
 
+// 비용/남용 방어: AI·결제 엔드포인트 레이트리밋
+const freeLimiter = U.rateLimit({ windowMs: 60000, max: 20, key: 'free' });
+const payLimiter = U.rateLimit({ windowMs: 60000, max: 12, key: 'pay' });
+const freeCache = U.makeCache({ ttlMs: 6 * 3600 * 1000, max: 500 });
+const orders = U.makeOrderStore();
+setInterval(() => orders.sweep(), 3600 * 1000).unref?.();
+
 const ok = (res, data) => res.json({ ok: true, ...data });
 const fail = (res, code, msg) => res.status(code).json({ ok: false, error: msg });
 const asyncH = (fn) => (req, res) => Promise.resolve(fn(req, res)).catch((e) => {
-  console.error(e);
-  fail(res, 500, e.message || '서버 오류');
+  const code = e && e.status ? e.status : 500;
+  if (code >= 500) console.error(e); else console.warn('[400]', e.message);
+  fail(res, code, e.message || '서버 오류');
 });
 
 /* Toss 클라이언트 키 (위젯 초기화용) */
@@ -48,25 +59,38 @@ app.get('/api/config', (req, res) => {
 });
 
 /* ② 무료 맛보기 리딩 */
-app.post('/api/free-reading', asyncH(async (req, res) => {
-  const saju = computeSaju(req.body || {});
+app.post('/api/free-reading', freeLimiter, asyncH(async (req, res) => {
+  const birth = U.validateBirth(req.body || {});
+  const ck = U.birthKey(birth);
+  const cached = freeCache.get(ck);
+  if (cached) return ok(res, Object.assign({ cached: true }, cached));
+
+  const saju = computeSaju(birth);
   const reading = await freeReading(saju);
-  ok(res, {
-    saju: publicSaju(saju),
-    teaser: reading.text,
-    source: reading.source,
-  });
+  const payload = { saju: publicSaju(saju), teaser: reading.text, source: reading.source };
+  if (reading.source === 'ai') freeCache.set(ck, payload); // mock 은 캐시하지 않음
+  ok(res, payload);
 }));
 
 /* ③④ 결제 승인 → 심층 리딩 생성 → 발송 */
-app.post('/api/payment/confirm', asyncH(async (req, res) => {
-  const { paymentKey, orderId, amount, birth, question, contact } = req.body || {};
+app.post('/api/payment/confirm', payLimiter, asyncH(async (req, res) => {
+  const { paymentKey, orderId, amount } = req.body || {};
+
+  // 멱등성: 같은 주문의 중복 확정 방지
+  if (orderId && orders.isConfirmed(orderId)) {
+    return fail(res, 409, '이미 처리된 주문입니다.');
+  }
+
+  const birth = U.validateBirth((req.body || {}).birth);
+  const question = U.sanitizeQuestion((req.body || {}).question);
+  const contact = U.sanitizeContact((req.body || {}).contact);
 
   // 1) 결제 서버 검증
   const pay = await confirmPayment({ paymentKey, orderId, amount });
+  orders.confirm(pay.orderId, pay.amount); // 확정 기록
 
   // 2) 심층 리딩 생성
-  const saju = computeSaju(birth || {});
+  const saju = computeSaju(birth);
   const reading = await paidReading(saju, question);
 
   // 3) PDF 사주첩 생성
@@ -74,8 +98,8 @@ app.post('/api/payment/confirm', asyncH(async (req, res) => {
 
   // 4) 발송 (이메일=PDF첨부 / 카톡)
   const delivery = await deliver({
-    email: contact?.email,
-    phone: contact?.phone,
+    email: contact.email,
+    phone: contact.phone,
     name: saju.input.name,
     readingText: reading.text,
     pdfBuffer,
@@ -93,13 +117,16 @@ app.post('/api/payment/confirm', asyncH(async (req, res) => {
 }));
 
 /* 결제 없이 재발송 (관리/테스트용 — 실서비스에선 인증 필요) */
-app.post('/api/deliver', asyncH(async (req, res) => {
-  const { birth, question, contact } = req.body || {};
-  const saju = computeSaju(birth || {});
+app.post('/api/deliver', payLimiter, asyncH(async (req, res) => {
+  const birth = U.validateBirth((req.body || {}).birth);
+  const question = U.sanitizeQuestion((req.body || {}).question);
+  const contact = U.sanitizeContact((req.body || {}).contact);
+  const saju = computeSaju(birth);
   const reading = await paidReading(saju, question);
+  const pdfBuffer = await renderPdf(saju, reading.text, question);
   const delivery = await deliver({
-    email: contact?.email, phone: contact?.phone,
-    name: saju.input.name, readingText: reading.text,
+    email: contact.email, phone: contact.phone,
+    name: saju.input.name, readingText: reading.text, pdfBuffer,
   });
   ok(res, { delivery, source: reading.source });
 }));
