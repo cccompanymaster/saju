@@ -34,6 +34,9 @@
     else { btn.textContent = btn.dataset._t || btn.textContent; btn.disabled = false; }
   }
 
+  function lang() { return window.__LANG__ || 'en'; }
+  function t(k) { return window.I18N ? window.I18N.t(k) : k; }
+
   /* ---------- 입력 수집 ---------- */
   function collectBirth() {
     var unknown = $('#bt-unknown').checked;
@@ -51,24 +54,27 @@
   }
 
   /* ---------- 결과 렌더 ---------- */
+  var ZODIAC_EN = { '쥐': 'Rat', '소': 'Ox', '호랑이': 'Tiger', '토끼': 'Rabbit', '용': 'Dragon', '뱀': 'Snake', '말': 'Horse', '양': 'Goat', '원숭이': 'Monkey', '닭': 'Rooster', '개': 'Dog', '돼지': 'Pig' };
   function renderSaju(s) {
-    $('#r-name').textContent = s.name + '님의 사주';
-    $('#r-meta').textContent = '양력 ' + s.solar + ' · 음력 ' + s.lunar + ' · ' + s.zodiac + '띠'
-      + (s.unknownTime ? ' · (출생시간 모름)' : '')
-      + (s.dayMaster && s.dayMaster.strength ? ' · ' + s.dayMaster.strength
-          + (s.dayMaster.yongsin ? ' · 용신 ' + s.dayMaster.yongsin.hanja : '') : '');
+    var ko = lang() === 'ko';
+    $('#r-name').textContent = ko ? (s.name + '님의 사주') : (s.name + "'s Saju");
+    var zodiac = ko ? (s.zodiac + '띠') : (ZODIAC_EN[s.zodiac] || s.zodiac);
+    $('#r-meta').textContent = (ko ? '양력 ' : 'Solar ') + s.solar + (ko ? ' · 음력 ' : ' · Lunar ') + s.lunar + ' · ' + zodiac
+      + (s.dayMaster && s.dayMaster.strength ? ' · ' + strengthLabel(s.dayMaster.strength)
+          + (s.dayMaster.yongsin ? ' · ' + (ko ? '용신 ' : 'Yongsin ') + s.dayMaster.yongsin.hanja : '') : '');
 
-    var labels = { year: '년주', month: '월주', day: '일주', hour: '시주' };
+    var labels = ko ? { year: '년주', month: '월주', day: '일주', hour: '시주' }
+                    : { year: 'Year', month: 'Month', day: 'Day', hour: 'Hour' };
     var html = '';
     ['year', 'month', 'day', 'hour'].forEach(function (k) {
       var p = s.pillars[k];
       if (!p) {
         html += '<div class="pillar pillar--empty"><p class="pillar__label">' + labels[k] + '</p>'
-          + '<p class="pillar__hanja">—</p><p class="pillar__han">모름</p></div>';
+          + '<p class="pillar__hanja">—</p><p class="pillar__han">' + (ko ? '모름' : 'unknown') + '</p></div>';
         return;
       }
       var isDay = k === 'day';
-      html += '<div class="pillar"><p class="pillar__label">' + labels[k] + (isDay ? ' (나)' : '') + '</p>'
+      html += '<div class="pillar"><p class="pillar__label">' + labels[k] + (isDay ? (ko ? ' (나)' : ' (me)') : '') + '</p>'
         + '<p class="pillar__hanja">' + p.hanja + '</p><p class="pillar__han">' + p.han + ' · ' + p.eumyang + p.ohaeng + '</p></div>';
     });
     $('#r-pillars').innerHTML = html;
@@ -94,8 +100,8 @@
     if (!/^\d{4}-\d{2}-\d{2}$/.test(birth.birthdate)) return showErr(err, '생년월일을 YYYY-MM-DD 형식으로 입력해 주세요.');
 
     var btn = $('#btn-free');
-    loading(btn, true, '🔮 사주를 풀고 있어요…');
-    api('/api/free-reading', birth)
+    loading(btn, true, lang() === 'ko' ? '🔮 사주를 풀고 있어요…' : '🔮 Reading your Saju…');
+    api('/api/free-reading', Object.assign({ lang: lang() }, birth))
       .then(function (res) {
         state.saju = res.saju; state.birth = birth;
         renderSaju(res.saju);
@@ -107,6 +113,7 @@
       .finally(function () { loading(btn, false); });
   }
   function showErr(el, msg) { if (el) { el.textContent = msg; show(el); } return false; }
+  function strengthLabel(k) { var m = window.I18N && window.I18N.t('result_meta_strong'); return (m && m[k]) || k; }
 
   /* ---------- ② 결제 시작 ---------- */
   function onPayClick() {
@@ -120,6 +127,7 @@
       birth: state.birth,
       question: $('#worry').value.trim(),
       contact: { email: email, phone: phone },
+      lang: lang(),
     };
     var btn = $('#btn-paid');
     loading(btn, true, '결제창을 여는 중…');
@@ -159,7 +167,8 @@
     if (!pending) throw new Error('결제 정보를 찾을 수 없습니다. 다시 시도해 주세요.');
 
     show($('#paid-result'));
-    $('#paid-body').innerHTML = '<div class="loading-inline"><span class="spinner"></span> 사주를 풀어 적고 있습니다…</div>';
+    $('#paid-body').innerHTML = '<div class="loading-inline"><span class="spinner"></span> '
+      + (lang() === 'ko' ? '사주를 풀어 적고 있습니다…' : 'Writing your in-depth Saju…') + '</div>';
     scrollTo($('#paid-result'));
 
     return api('/api/payment/confirm', {
@@ -169,15 +178,22 @@
       birth: pending.birth,
       question: pending.question,
       contact: pending.contact,
+      lang: pending.lang || lang(),
     }).then(function (res) {
       sessionStorage.removeItem(STORE);
       $('#paid-meta').textContent = res.saju.name + '님 · ' + res.saju.pillarsText;
       $('#paid-body').textContent = res.reading;
 
       var dn = $('#delivery-note');
+      var ko = lang() === 'ko';
       var sent = (res.delivery || []).filter(function (d) { return d.ok && !d.skipped; })
-        .map(function (d) { return d.channel === 'email' ? '이메일' : '카카오'; });
-      if (sent.length) { dn.textContent = '📨 ' + sent.join(' · ') + '(으)로 PDF 사주첩을 보내드렸습니다.'; show(dn); }
+        .map(function (d) { return d.channel === 'email' ? (ko ? '이메일' : 'email') : (ko ? '카카오' : 'KakaoTalk'); });
+      if (sent.length) {
+        dn.innerHTML = '📨 ' + t('delivered') + sent.join(' · ') + '.'
+          + (res.reAccessUrl ? '<br/><a href="' + res.reAccessUrl + '" style="color:var(--jade);word-break:break-all">'
+              + (ko ? '내 결과 다시 보기 (2주간)' : 'Re-open my result (2 weeks)') + '</a>' : '');
+        show(dn);
+      }
 
       // PDF 즉시 내려받기
       var pdfBtn = $('#btn-pdf');
@@ -200,6 +216,44 @@
 
   function readPending() {
     try { return JSON.parse(sessionStorage.getItem(STORE) || 'null'); } catch (e) { return null; }
+  }
+
+  function renderPaid(res) {
+    if (res.saju) { renderSaju(res.saju); show($('#free-result')); }
+    if (res.saju) $('#paid-meta').textContent = res.saju.name + ' · ' + res.saju.pillarsText;
+    $('#paid-body').textContent = res.reading;
+    var pdfBtn = $('#btn-pdf');
+    if (pdfBtn && res.pdfBase64) {
+      try {
+        var bin = atob(res.pdfBase64), len = bin.length, bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+        pdfBtn.href = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+        pdfBtn.setAttribute('download', res.pdfName || 'Joseon_Saju.pdf');
+        show(pdfBtn);
+      } catch (e) {}
+    }
+    hide($('#free-result'));
+    show($('#paid-result'));
+  }
+
+  /* 재열람: /m/?r=TOKEN (발송일로부터 2주) */
+  function handleReopen() {
+    var q = new URLSearchParams(location.search);
+    var token = q.get('r');
+    if (!token) return false;
+    show($('#paid-result'));
+    $('#paid-body').innerHTML = '<div class="loading-inline"><span class="spinner"></span> '
+      + (lang() === 'ko' ? '저장된 결과를 불러옵니다…' : 'Loading your saved result…') + '</div>';
+    scrollTo($('#paid-result'));
+    fetch('/api/result/' + encodeURIComponent(token)).then(function (r) {
+      return r.json().then(function (j) { return { status: r.status, j: j }; });
+    }).then(function (o) {
+      if (o.status === 200 && o.j.ok) { renderPaid(o.j); }
+      else { $('#paid-body').innerHTML = '<p class="form-error">' + (window.I18N ? I18N.t('reopen_expired') : 'This result has expired.') + '</p>'; }
+    }).catch(function () {
+      $('#paid-body').innerHTML = '<p class="form-error">' + (window.I18N ? I18N.t('reopen_expired') : 'This result has expired.') + '</p>';
+    });
+    return true;
   }
 
   /* 결제 리다이렉트 복귀 처리 */
@@ -312,7 +366,7 @@
     initDemoBadge();
     $('#form-reading').addEventListener('submit', onFreeSubmit);
     $('#btn-paid').addEventListener('click', onPayClick);
-    handleReturn();
+    if (!handleReopen()) handleReturn();
   });
 
   /* 키 미설정 시 데모(mock) 모드 안내 배지 */

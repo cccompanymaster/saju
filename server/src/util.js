@@ -14,12 +14,13 @@ function securityHeaders(req, res, next) {
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   res.setHeader('Content-Security-Policy', [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://js.tosspayments.com https://cdn.jsdelivr.net",
+    "script-src 'self' 'unsafe-inline' https://js.tosspayments.com https://cdn.jsdelivr.net https://t1.kakaocdn.net",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:",
     "img-src 'self' data: https:",
-    "connect-src 'self' https://api.tosspayments.com",
-    "frame-src https://js.tosspayments.com",
+    "script-src-elem 'self' 'unsafe-inline' https://js.tosspayments.com https://cdn.jsdelivr.net https://t1.kakaocdn.net",
+    "connect-src 'self' https://api.tosspayments.com https://kapi.kakao.com https://kauth.kakao.com",
+    "frame-src https://js.tosspayments.com https://kauth.kakao.com",
     "base-uri 'self'",
     "form-action 'self'",
   ].join('; '));
@@ -119,7 +120,30 @@ function makeOrderStore({ ttlMs = 24 * 3600 * 1000 } = {}) {
   };
 }
 
+/* ── 결과 저장소(재열람: 발송일로부터 2주) ──
+ * 인메모리 + 14일 TTL. 토큰으로만 접근. 다중 인스턴스/영속이 필요하면 DB로 교체.
+ */
+const crypto = require('crypto');
+function makeResultStore({ ttlMs = 14 * 24 * 3600 * 1000, max = 5000 } = {}) {
+  const map = new Map(); // token → { data, exp }
+  return {
+    save(data) {
+      const token = crypto.randomBytes(18).toString('base64url');
+      map.set(token, { data, exp: Date.now() + ttlMs });
+      if (map.size > max) map.delete(map.keys().next().value);
+      return token;
+    },
+    get(token) {
+      const r = map.get(token);
+      if (!r) return null;
+      if (r.exp < Date.now()) { map.delete(token); return null; }
+      return r.data;
+    },
+    sweep() { const now = Date.now(); for (const [k, v] of map) if (v.exp < now) map.delete(k); },
+  };
+}
+
 module.exports = {
   securityHeaders, rateLimit, validateBirth, sanitizeQuestion, sanitizeContact,
-  validEmail, makeCache, birthKey, makeOrderStore, badReq,
+  validEmail, makeCache, birthKey, makeOrderStore, makeResultStore, badReq,
 };

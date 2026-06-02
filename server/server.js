@@ -34,7 +34,10 @@ const freeLimiter = U.rateLimit({ windowMs: 60000, max: 20, key: 'free' });
 const payLimiter = U.rateLimit({ windowMs: 60000, max: 12, key: 'pay' });
 const freeCache = U.makeCache({ ttlMs: 6 * 3600 * 1000, max: 500 });
 const orders = U.makeOrderStore();
-setInterval(() => orders.sweep(), 3600 * 1000).unref?.();
+const results = U.makeResultStore(); // 재열람 14일
+const APP_BASE = (process.env.APP_BASE_URL || '').replace(/\/$/, '');
+setInterval(() => { orders.sweep(); results.sweep(); }, 3600 * 1000).unref?.();
+function pickLang(v) { return v === 'ko' ? 'ko' : 'en'; }
 
 const ok = (res, data) => res.json({ ok: true, ...data });
 const fail = (res, code, msg) => res.status(code).json({ ok: false, error: msg });
@@ -55,18 +58,21 @@ app.get('/api/config', (req, res) => {
     price: AMOUNT,
     clientKey: process.env.TOSS_CLIENT_KEY || '',
     aiEnabled: !!process.env.ANTHROPIC_API_KEY,
+    kakaoJsKey: process.env.KAKAO_JS_KEY || '',
+    kakaoChannelId: process.env.KAKAO_CHANNEL_ID || '',
   });
 });
 
 /* ② 무료 맛보기 리딩 */
 app.post('/api/free-reading', freeLimiter, asyncH(async (req, res) => {
   const birth = U.validateBirth(req.body || {});
-  const ck = U.birthKey(birth);
+  const lang = pickLang((req.body || {}).lang);
+  const ck = lang + '|' + U.birthKey(birth);
   const cached = freeCache.get(ck);
   if (cached) return ok(res, Object.assign({ cached: true }, cached));
 
   const saju = computeSaju(birth);
-  const reading = await freeReading(saju);
+  const reading = await freeReading(saju, lang);
   const payload = { saju: publicSaju(saju), teaser: reading.text, source: reading.source };
   if (reading.source === 'ai') freeCache.set(ck, payload); // mock 은 캐시하지 않음
   ok(res, payload);
@@ -84,6 +90,7 @@ app.post('/api/payment/confirm', payLimiter, asyncH(async (req, res) => {
   const birth = U.validateBirth((req.body || {}).birth);
   const question = U.sanitizeQuestion((req.body || {}).question);
   const contact = U.sanitizeContact((req.body || {}).contact);
+  const lang = pickLang((req.body || {}).lang);
 
   // 1) 결제 서버 검증
   const pay = await confirmPayment({ paymentKey, orderId, amount });
@@ -91,42 +98,53 @@ app.post('/api/payment/confirm', payLimiter, asyncH(async (req, res) => {
 
   // 2) 심층 리딩 생성
   const saju = computeSaju(birth);
-  const reading = await paidReading(saju, question);
+  const reading = await paidReading(saju, question, lang);
 
   // 3) PDF 사주첩 생성
-  const pdfBuffer = await renderPdf(saju, reading.text, question);
+  const pdfBuffer = await renderPdf(saju, reading.text, question, lang);
+  const pdfBase64 = pdfBuffer ? pdfBuffer.toString('base64') : null;
+  const pdfName = (lang === 'en' ? 'Joseon_Saju_' : '조선사주_') + saju.input.name + (lang === 'en' ? '_booklet.pdf' : '_사주첩.pdf');
 
-  // 4) 발송 (이메일=PDF첨부 / 카톡)
+  // 4) 재열람 토큰 저장 (발송일로부터 2주)
+  const token = results.save({
+    ok: true, reading: reading.text, source: reading.source,
+    saju: publicSaju(saju), question, lang, pdfBase64, pdfName,
+  });
+  const reAccessUrl = (APP_BASE || ('https://' + (req.headers.host || ''))) + '/m/?r=' + token;
+
+  // 5) 발송 (이메일=PDF첨부 / 카톡 알림톡 — 재열람 링크 포함)
   const delivery = await deliver({
-    email: contact.email,
-    phone: contact.phone,
-    name: saju.input.name,
-    readingText: reading.text,
-    pdfBuffer,
+    email: contact.email, phone: contact.phone,
+    name: saju.input.name, readingText: reading.text, pdfBuffer, lang, reAccessUrl,
   });
 
   ok(res, {
     payment: { orderId: pay.orderId, mock: pay.mock },
     saju: publicSaju(saju),
-    reading: reading.text,
-    source: reading.source,
-    delivery,
-    pdfBase64: pdfBuffer ? pdfBuffer.toString('base64') : null,
-    pdfName: `조선사주_${saju.input.name}_사주첩.pdf`,
+    reading: reading.text, source: reading.source,
+    delivery, pdfBase64, pdfName, reAccessUrl,
   });
 }));
+
+/* 재열람: 발송일로부터 2주간 토큰으로 결과 조회 */
+app.get('/api/result/:token', (req, res) => {
+  const data = results.get(req.params.token);
+  if (!data) return fail(res, 404, '결과가 만료되었거나 존재하지 않습니다.');
+  ok(res, data);
+});
 
 /* 결제 없이 재발송 (관리/테스트용 — 실서비스에선 인증 필요) */
 app.post('/api/deliver', payLimiter, asyncH(async (req, res) => {
   const birth = U.validateBirth((req.body || {}).birth);
   const question = U.sanitizeQuestion((req.body || {}).question);
   const contact = U.sanitizeContact((req.body || {}).contact);
+  const lang = pickLang((req.body || {}).lang);
   const saju = computeSaju(birth);
-  const reading = await paidReading(saju, question);
-  const pdfBuffer = await renderPdf(saju, reading.text, question);
+  const reading = await paidReading(saju, question, lang);
+  const pdfBuffer = await renderPdf(saju, reading.text, question, lang);
   const delivery = await deliver({
     email: contact.email, phone: contact.phone,
-    name: saju.input.name, readingText: reading.text, pdfBuffer,
+    name: saju.input.name, readingText: reading.text, pdfBuffer, lang,
   });
   ok(res, { delivery, source: reading.source });
 }));

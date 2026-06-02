@@ -15,8 +15,18 @@
     var dots = Array.prototype.slice.call(hero.querySelectorAll('.idol-dots span'));
     if (!track || !stage || layers.length === 0) return;
 
-    var names = layers.map(function (l) { return l.getAttribute('data-name') || ''; });
+    var nameOf = function (l) {
+      var k = l.getAttribute('data-name-key');
+      if (k && window.I18N) return window.I18N.t(k);
+      return l.getAttribute('data-name') || '';
+    };
+    var names = layers.map(nameOf);
     var n = layers.length;
+    // 언어 변경 시 캡션 갱신
+    document.addEventListener('i18n:changed', function () {
+      names = layers.map(nameOf);
+      if (nameEl && lastIdx >= 0) nameEl.textContent = names[lastIdx] || '';
+    });
     var lastIdx = -1;
     var ticking = false;
 

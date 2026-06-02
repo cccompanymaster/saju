@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -9,16 +9,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="조선사주" />
+  <meta name="apple-mobile-web-app-title" content="Joseon Saju" />
 
-  <title>조선사주(朝鮮四柱) — 생년월일로 보는 무료 사주 맛보기</title>
-  <meta name="description" content="생년월일로 사주(四柱)를 풀고 지금의 흐름을 읽습니다. 무료 맛보기 · 약 1분 · 결제 없음. 심층 리딩은 3,900원. 마자샘 김경희의 특허출원 리딩 구조 기반." />
+  <title>Joseon Saju (朝鮮四柱) — Free Four Pillars reading from your birthday</title>
+  <meta name="description" content="Read your Saju (Four Pillars) from your birth date and see the current of your life. Free preview · about 1 min · no payment. In-depth reading ₩3,900." />
   <link rel="canonical" href="https://basic.majatalk.com/m/" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="조선사주" />
-  <meta property="og:title" content="조선사주(朝鮮四柱) — 무료 사주 맛보기" />
-  <meta property="og:description" content="생년월일로 보는 무료 사주. 돈·사랑·일·관계의 흐름을 조선의 명리로 읽어드립니다." />
+  <meta property="og:site_name" content="Joseon Saju" />
+  <meta property="og:title" content="Joseon Saju (朝鮮四柱) — Free Four Pillars reading" />
+  <meta property="og:description" content="From your birthday, read the current of Money · Love · Work · Relationships through Joseon Myeongri." />
   <meta property="og:url" content="https://basic.majatalk.com/m/" />
   <meta property="og:image" content="https://basic.majatalk.com/assets/og-image-v4.png" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -31,42 +31,44 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@400;700;900&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+KR:wght@400;700;900&display=swap" />
 
-  <link rel="stylesheet" href="/m/css/app.css?v=20260601-joseon" />
+  <link rel="stylesheet" href="/m/css/app.css?v=20260602-i18n" />
   <link rel="stylesheet" href="/m/css/idol-hero.css?v=20260601-idol" />
 
-  <!-- 구조화 데이터(JSON-LD): 검색 노출·리치결과 -->
+  <!-- 구조화 데이터(JSON-LD) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@graph": [
-      { "@type": "WebSite", "name": "조선사주", "url": "https://basic.majatalk.com/m/", "inLanguage": "ko" },
-      { "@type": "Organization", "name": "조선사주", "url": "https://basic.majatalk.com/m/", "logo": "https://basic.majatalk.com/assets/icon-512.png" },
+      { "@type": "WebSite", "name": "Joseon Saju", "url": "https://basic.majatalk.com/m/", "inLanguage": "en" },
+      { "@type": "Organization", "name": "Joseon Saju", "url": "https://basic.majatalk.com/m/", "logo": "https://basic.majatalk.com/assets/icon-512.png" },
       {
-        "@type": "Service", "name": "조선사주 심층 사주 리딩", "serviceType": "사주·명리 리딩",
-        "provider": { "@type": "Organization", "name": "조선사주" },
-        "areaServed": "KR", "inLanguage": "ko",
-        "offers": { "@type": "Offer", "price": "3900", "priceCurrency": "KRW", "description": "심층 사주 리딩 + PDF 사주첩" }
+        "@type": "Service", "name": "Joseon Saju in-depth reading", "serviceType": "Saju / Myeongri reading",
+        "provider": { "@type": "Organization", "name": "Joseon Saju" }, "areaServed": "Worldwide", "inLanguage": "en",
+        "offers": { "@type": "Offer", "price": "3900", "priceCurrency": "KRW", "description": "In-depth Saju reading + PDF booklet" }
       },
       {
         "@type": "FAQPage",
         "mainEntity": [
-          { "@type": "Question", "name": "무료로 무엇을 보나요?", "acceptedAnswer": { "@type": "Answer", "text": "생년월일로 계산한 사주(네 기둥)와 일간·오행으로 본 타고난 기질, 지금의 흐름을 무료로 보여드립니다." } },
-          { "@type": "Question", "name": "심층 사주는 무엇이 다른가요?", "acceptedAnswer": { "@type": "Answer", "text": "질문에 대한 판정, 명리·오행·십성 통합 리딩, 좋은 시기와 주의할 시기, 행동 조언을 조선 왕후 어투의 PDF 사주첩으로 드립니다." } },
-          { "@type": "Question", "name": "출생 시간을 모르면 안 되나요?", "acceptedAnswer": { "@type": "Answer", "text": "모름으로 진행할 수 있으며, 이 경우 시주를 제외하고 시각에 의존하는 해석은 절제합니다." } }
+          { "@type": "Question", "name": "What does the free preview show?", "acceptedAnswer": { "@type": "Answer", "text": "Your Four Pillars computed from your birth date, your innate temperament by Day Master and Five Elements, and the current flow — free." } },
+          { "@type": "Question", "name": "What is different about the in-depth Saju?", "acceptedAnswer": { "@type": "Answer", "text": "A verdict on your question, an integrated Myeongri / Five Elements / Ten Gods reading, good and cautionary periods, and concrete advice — delivered as a PDF booklet." } },
+          { "@type": "Question", "name": "Can I re-open my result later?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Your result can be re-opened for 2 weeks from delivery via the secure link sent to you, then it is deleted." } }
         ]
       }
     ]
   }
   </script>
 
-  <!-- TossPayments 결제 SDK -->
+  <!-- TossPayments -->
   <script src="https://js.tosspayments.com/v2/standard"></script>
+  <!-- Kakao SDK (로그인·채널) -->
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"
+          integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
 </head>
 <body>
 
-  <!-- 실사진 머리카락 흔들림용 SVG 필터 (img에 class="idol-breeze" 부여 시 적용) -->
+  <!-- 실사진 머리카락 흔들림용 SVG 필터 -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <filter id="breeze" x="-10%" y="-10%" width="120%" height="120%">
       <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="2" seed="7" result="noise">
@@ -76,10 +78,10 @@
     </filter>
   </svg>
 
-  <div class="splash" id="splash" role="status" aria-label="로딩 중">
+  <div class="splash" id="splash" role="status" aria-label="loading">
     <span class="seal" aria-hidden="true">四柱</span>
-    <p class="splash__name">조선사주</p>
-    <p class="splash__sub">생년월일이 말해주는 당신의 사주</p>
+    <p class="splash__name" data-i18n="brand">Joseon Saju</p>
+    <p class="splash__sub">朝 鮮 四 柱</p>
   </div>
 
   <div class="app-shell">
@@ -88,202 +90,203 @@
       <div class="wrap site-header__inner">
         <div class="brand">
           <span class="seal" aria-hidden="true">四</span>
-          <span class="brand__name">조선사주</span>
+          <span class="brand__name" data-i18n="brand">Joseon Saju</span>
         </div>
-        <div class="lang" role="group" aria-label="언어 선택">
-          <button type="button" class="lang__btn" data-lang="KOR" aria-pressed="true">KOR</button>
-          <button type="button" class="lang__btn" data-lang="ENG" aria-pressed="false">ENG</button>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" class="lang__btn" data-lang="ENG" aria-pressed="true">ENG</button>
+          <button type="button" class="lang__btn" data-lang="KOR" aria-pressed="false">KOR</button>
         </div>
       </div>
     </header>
 
     <main id="top" class="has-sticky-cta">
 
-      <!-- ===== 스크롤 모핑 히어로 (조선의 밤) ===== -->
-      <!-- 실제 사진 교체: /m/img/idols/idol-1.webp 등을 넣으면 자동 사용.
-           머리카락 흔들림(실사진)은 <img> 에 class="idol-breeze" 추가. 자세히는 docs/IDOL_HERO.md -->
-      <section class="idol-hero" aria-label="조선사주">
+      <!-- ===== 스크롤 모핑 히어로 ===== -->
+      <section class="idol-hero" aria-label="Joseon Saju">
         <div class="idol-hero__track">
           <div class="idol-hero__stage">
             <div class="idol-dots" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
 
             <div class="idol-frame">
-              <div class="idol-layer" data-name="첫 번째 인연" style="opacity:1">
-                <img src="/m/img/idols/idol-1.webp" alt="조선사주 메인 인물 1"
+              <div class="idol-layer" data-name-key="idol1" style="opacity:1">
+                <img src="/m/img/idols/idol-1.webp" alt="Joseon Saju main figure 1"
                      width="600" height="800" loading="eager" fetchpriority="high" decoding="async"
                      onerror="this.onerror=null;this.src='/m/img/idols/portrait-1.svg';" />
               </div>
-              <div class="idol-layer" data-name="두 번째 인연">
-                <img src="/m/img/idols/idol-2.webp" alt="조선사주 메인 인물 2"
+              <div class="idol-layer" data-name-key="idol2">
+                <img src="/m/img/idols/idol-2.webp" alt="Joseon Saju main figure 2"
                      width="600" height="800" loading="lazy" decoding="async"
                      onerror="this.onerror=null;this.src='/m/img/idols/portrait-2.svg';" />
               </div>
-              <div class="idol-layer" data-name="세 번째 인연">
-                <img src="/m/img/idols/idol-3.webp" alt="조선사주 메인 인물 3"
+              <div class="idol-layer" data-name-key="idol3">
+                <img src="/m/img/idols/idol-3.webp" alt="Joseon Saju main figure 3"
                      width="600" height="800" loading="lazy" decoding="async"
                      onerror="this.onerror=null;this.src='/m/img/idols/portrait-3.svg';" />
               </div>
             </div>
 
             <div class="idol-copy">
-              <p class="idol-name">첫 번째 인연</p>
-              <h1 class="hero__title">조선사주</h1>
+              <p class="idol-name" data-i18n="idol1">First Encounter</p>
+              <h1 class="hero__title" data-i18n="hero_title">Joseon Saju</h1>
               <p class="hero__title-sub">朝 鮮 四 柱</p>
-              <p class="hero__headline">생년월일로 사주를 풀어<br />지금의 흐름을 읽어드립니다.</p>
-              <a href="#search" class="btn btn--gold js-scroll">✦ 무료로 내 사주 맛보기</a>
-              <p class="hero__micro">무료 맛보기 · 약 1분 · 결제 없음</p>
+              <p class="hero__headline" data-i18n-html="hero_headline">From your birth date, we read your<br/>Four Pillars and the current of your life.</p>
+              <a href="#search" class="btn btn--gold js-scroll" data-i18n="hero_cta">✦ Read my Saju — free</a>
+              <p class="hero__micro" data-i18n="hero_micro">Free preview · about 1 min · no payment</p>
             </div>
 
-            <p class="idol-scroll-hint" aria-hidden="true">스크롤 ↓</p>
+            <p class="idol-scroll-hint" aria-hidden="true" data-i18n="scroll_hint">scroll ↓</p>
           </div>
         </div>
       </section>
 
-      <div class="stat-strip" aria-live="polite">✦ 지금까지 <strong id="stat-count">12,800</strong>명이 사주를 보았습니다 ✦</div>
+      <div class="stat-strip" aria-live="polite"><span data-i18n="stat_strip_pre">✦ So far </span><strong id="stat-count">12,800</strong><span data-i18n="stat_strip_post"> people have had a reading ✦</span></div>
 
       <!-- ===== 무엇을 보나요 ===== -->
-      <section class="section wrap" aria-label="무료 리딩 안내">
-        <p class="eyebrow">무료 맛보기</p>
-        <h2 class="section-title">무료로<br />무엇을 보나요?</h2>
-        <p class="section-sub">생년월일로 세운 당신의 사주(네 기둥)와 타고난 기질을 읽어드립니다.</p>
+      <section class="section wrap" aria-label="free reading">
+        <p class="eyebrow" data-i18n="feat_eyebrow">Free Preview</p>
+        <h2 class="section-title" data-i18n-html="feat_title">What does the<br/>free preview show?</h2>
+        <p class="section-sub" data-i18n="feat_sub">Your Four Pillars and your innate temperament.</p>
         <div class="feature-grid">
-          <div class="feature"><span class="feature__ico" aria-hidden="true">命</span><div><p class="feature__t">타고난 기질</p><p class="feature__d">일간(나)과 오행으로 본 성향.</p></div></div>
-          <div class="feature"><span class="feature__ico" aria-hidden="true">運</span><div><p class="feature__t">지금의 흐름</p><p class="feature__d">강한 기운과 비어 있는 자리.</p></div></div>
-          <div class="feature"><span class="feature__ico" aria-hidden="true">問</span><div><p class="feature__t">더 깊은 답</p><p class="feature__d">질문에 답하는 심층 리딩으로.</p></div></div>
+          <div class="feature"><span class="feature__ico" aria-hidden="true">命</span><div><p class="feature__t" data-i18n="feat1_t">Innate temperament</p><p class="feature__d" data-i18n="feat1_d">Your nature by Day Master and Five Elements.</p></div></div>
+          <div class="feature"><span class="feature__ico" aria-hidden="true">運</span><div><p class="feature__t" data-i18n="feat2_t">Current flow</p><p class="feature__d" data-i18n="feat2_d">The strong forces and the empty seats.</p></div></div>
+          <div class="feature"><span class="feature__ico" aria-hidden="true">問</span><div><p class="feature__t" data-i18n="feat3_t">A deeper answer</p><p class="feature__d" data-i18n="feat3_d">An in-depth reading that answers your question.</p></div></div>
         </div>
       </section>
 
-      <!-- ===== 입력 폼 (무료) ===== -->
-      <section id="search" class="section wrap" aria-label="사주 정보 입력">
-        <p class="eyebrow">사주 입력</p>
-        <h2 class="section-title">생년월일을<br />적어 주세요</h2>
-        <p class="section-sub">정확할수록, 풀이가 더 선명해집니다.</p>
+      <!-- ===== 입력 폼 ===== -->
+      <section id="search" class="section wrap" aria-label="birth info">
+        <p class="eyebrow" data-i18n="search_eyebrow">Your Saju</p>
+        <h2 class="section-title" data-i18n-html="search_title">Enter your<br/>birth date</h2>
+        <p class="section-sub" data-i18n="search_sub">The more precise, the clearer the reading.</p>
 
         <form class="form" id="form-reading" autocomplete="on" novalidate>
           <div class="field">
-            <label class="label" for="person-name">이름 (한글·영어)</label>
-            <input class="input" type="text" id="person-name" name="name" placeholder="이름을 입력하세요" autocomplete="name" required />
+            <label class="label" for="person-name" data-i18n="label_name">Name</label>
+            <input class="input" type="text" id="person-name" name="name" data-i18n-ph="ph_name" placeholder="Enter your name" autocomplete="name" required />
           </div>
 
           <div class="field">
-            <span class="label" id="gender-label">성별</span>
+            <span class="label" id="gender-label" data-i18n="label_gender">Gender</span>
             <div class="segment" role="radiogroup" aria-labelledby="gender-label">
-              <label><input type="radio" name="gender" value="M" /><span>남성</span></label>
-              <label><input type="radio" name="gender" value="F" checked /><span>여성</span></label>
-              <label><input type="radio" name="gender" value="O" /><span>기타</span></label>
+              <label><input type="radio" name="gender" value="M" /><span data-i18n="g_m">Male</span></label>
+              <label><input type="radio" name="gender" value="F" checked /><span data-i18n="g_f">Female</span></label>
+              <label><input type="radio" name="gender" value="O" /><span data-i18n="g_o">Other</span></label>
             </div>
           </div>
 
           <div class="field">
-            <label class="label" for="birthdate">생년월일</label>
-            <div class="segment" role="radiogroup" aria-label="양력 음력 윤달">
-              <label><input type="radio" name="lunar" value="solar" checked /><span>양력</span></label>
-              <label><input type="radio" name="lunar" value="lunar" /><span>음력</span></label>
-              <label><input type="radio" name="lunar" value="leap" /><span>윤달</span></label>
+            <label class="label" for="birthdate" data-i18n="label_birth">Birth date</label>
+            <div class="segment" role="radiogroup" aria-label="calendar">
+              <label><input type="radio" name="lunar" value="solar" checked /><span data-i18n="cal_solar">Solar</span></label>
+              <label><input type="radio" name="lunar" value="lunar" /><span data-i18n="cal_lunar">Lunar</span></label>
+              <label><input type="radio" name="lunar" value="leap" /><span data-i18n="cal_leap">Leap</span></label>
             </div>
             <input class="input" type="text" id="birthdate" name="birthdate" inputmode="numeric" placeholder="YYYY-MM-DD" maxlength="10" autocomplete="bday" required />
           </div>
 
           <div class="field">
-            <span class="label">출생 시간 (24시간제 · 모름 가능)</span>
+            <span class="label" data-i18n="label_time">Birth time (24h · "unknown" allowed)</span>
             <div class="time-row">
-              <input class="input" type="text" id="bt-hour" inputmode="numeric" maxlength="2" placeholder="시" value="12" aria-label="시 (0–23)" />
+              <input class="input" type="text" id="bt-hour" inputmode="numeric" maxlength="2" placeholder="HH" value="12" aria-label="hour (0–23)" />
               <span class="time-sep" aria-hidden="true">:</span>
-              <input class="input" type="text" id="bt-min" inputmode="numeric" maxlength="2" placeholder="분" value="00" aria-label="분 (0–59)" />
-              <label class="check"><input type="checkbox" id="bt-unknown" /> 모름</label>
+              <input class="input" type="text" id="bt-min" inputmode="numeric" maxlength="2" placeholder="MM" value="00" aria-label="minute (0–59)" />
+              <label class="check"><input type="checkbox" id="bt-unknown" /> <span data-i18n="time_unknown">Unknown</span></label>
             </div>
             <label class="check" style="margin-top:8px;margin-left:0">
-              <input type="checkbox" id="bt-truesolar" /> 진태양시 보정 (한국 출생 권장)
+              <input type="checkbox" id="bt-truesolar" /> <span data-i18n="truesolar">True solar time (recommended for Korea)</span>
             </label>
           </div>
 
           <div class="field">
-            <label class="label" for="birth-place">태어난 곳 (선택)</label>
-            <input class="input" type="text" id="birth-place" placeholder="예: 한양(서울)" autocomplete="off" />
+            <label class="label" for="birth-place" data-i18n="label_place">Birth place (optional)</label>
+            <input class="input" type="text" id="birth-place" data-i18n-ph="ph_place" placeholder="e.g. Seoul" autocomplete="off" />
           </div>
 
-          <button type="submit" class="btn btn--gold" id="btn-free">✦ 무료 사주 맛보기 보기</button>
+          <button type="submit" class="btn btn--gold" id="btn-free" data-i18n="btn_free">✦ See my free Saju preview</button>
           <p class="form-error is-hidden" id="form-error"></p>
         </form>
 
         <details class="note-acc">
-          <summary>🔒 개인정보 안심 안내 보기</summary>
+          <summary data-i18n="privacy_summary">🔒 How is my information handled?</summary>
           <div class="note-acc__body">
-            <p>입력하신 생년월일·출생시간·질문은 리딩 결과 생성을 위한 일회성 처리에만 사용되며, 별도의 상담 기록으로 저장하지 않습니다.</p>
-            <p>심층 리딩 발송을 위해 입력한 이메일/연락처는 결과 전달 목적 외에 사용하지 않습니다.</p>
+            <p data-i18n="privacy1">Your birth date, time and question are used only to generate this reading.</p>
+            <p data-i18n="privacy2">Your result can be re-opened for 2 weeks from the time it is sent, then deleted.</p>
           </div>
         </details>
       </section>
 
-      <!-- ===== 무료 맛보기 결과 (동적) ===== -->
-      <section id="free-result" class="section wrap is-hidden" aria-label="무료 맛보기 결과">
+      <!-- ===== 무료 맛보기 결과 ===== -->
+      <section id="free-result" class="section wrap is-hidden" aria-label="free preview result">
         <div class="result-head">
           <p class="result-head__name" id="r-name"></p>
           <p class="result-head__meta" id="r-meta"></p>
         </div>
 
-        <div class="pillars" id="r-pillars" aria-label="사주 네 기둥"></div>
-        <div class="ohaeng" id="r-ohaeng" aria-label="오행 분포"></div>
+        <div class="pillars" id="r-pillars" aria-label="four pillars"></div>
+        <div class="ohaeng" id="r-ohaeng" aria-label="five elements"></div>
 
         <div class="reading-body teaser" id="r-teaser"></div>
 
         <!-- 결제 후크 -->
         <div class="paid" style="margin-top:26px">
           <div class="paid__divider" aria-hidden="true">✦ ✦ ✦</div>
-          <p class="paid__lead">맛보기는 흐름을 보여주고,<br />당신의 질문은 답을 선명하게 만듭니다.</p>
+          <p class="paid__lead" data-i18n-html="paid_lead">The preview shows the current;<br/>your question makes the answer clear.</p>
 
           <div class="field" style="margin-bottom:14px;text-align:left">
-            <label class="label" for="worry">지금 가장 궁금한 한 가지</label>
-            <textarea class="textarea" id="worry" rows="4" maxlength="100" placeholder='예: "지금 이직을 해도 될까요?"'></textarea>
+            <label class="label" for="worry" data-i18n="worry_label">The one thing you most want to know</label>
+            <textarea class="textarea" id="worry" rows="4" maxlength="100" data-i18n-ph="ph_worry" placeholder='e.g. "Should I make this move now?"'></textarea>
             <p class="hero__micro" id="worry-counter" aria-live="polite" style="text-align:right;margin:6px 0 0;color:var(--ink-faint)">0 / 100</p>
           </div>
 
+          <button type="button" class="btn btn--kakao is-hidden" id="btn-kakao-login" data-i18n="kakao_login">💬 Sign up / log in with Kakao</button>
+
           <div class="row-2" style="text-align:left">
             <div class="field">
-              <label class="label" for="contact-email">결과 받을 이메일</label>
+              <label class="label" for="contact-email" data-i18n="contact_email">Email to receive the result</label>
               <input class="input" type="email" id="contact-email" placeholder="name@email.com" autocomplete="email" inputmode="email" />
             </div>
             <div class="field">
-              <label class="label" for="contact-phone">연락처 (카톡, 선택)</label>
+              <label class="label" for="contact-phone" data-i18n="contact_phone">Phone (KakaoTalk, optional)</label>
               <input class="input" type="tel" id="contact-phone" placeholder="010-0000-0000" autocomplete="tel" inputmode="numeric" />
             </div>
           </div>
 
           <div class="paid__benefits" style="margin-top:14px">
-            <p>✓ 질문에 대한 명확한 판정</p>
-            <p>✓ 명리·오행·십성 통합 리딩</p>
-            <p>✓ 좋은 시기와 주의할 시기</p>
-            <p>✓ 지금 해야 할 행동 조언</p>
-            <p>✓ 결과를 이메일·카톡으로 발송</p>
+            <p data-i18n="benefit1">✓ A clear verdict on your question</p>
+            <p data-i18n="benefit2">✓ Integrated Myeongri · Five Elements · Ten Gods</p>
+            <p data-i18n="benefit3">✓ Good periods and periods to beware</p>
+            <p data-i18n="benefit4">✓ Concrete actions to take now</p>
+            <p data-i18n="benefit5">✓ Sent to email · KakaoTalk · re-openable for 2 weeks</p>
           </div>
 
-          <button type="button" class="btn btn--plum" id="btn-paid">☵ 3,900원으로 심층 사주 열기</button>
+          <button type="button" class="btn btn--plum" id="btn-paid" data-i18n="btn_paid">☵ Unlock the in-depth Saju · ₩3,900</button>
           <p class="form-error is-hidden" id="pay-error"></p>
-          <p class="paid__patent">📌 마자샘 김경희의 특허출원 리딩 구조 기반<br />출생 정보와 질문을 바탕으로 심층 리딩을 구성합니다.</p>
+          <p class="paid__patent" data-i18n="paid_patent" style="white-space:pre-line">📌 Based on the patent-pending reading structure of Maja-saem Kim Kyung-hee.</p>
         </div>
       </section>
 
-      <!-- ===== 심층 결과 (결제 후) ===== -->
-      <section id="paid-result" class="section wrap is-hidden" aria-label="심층 리딩 결과">
+      <!-- ===== 심층 결과 ===== -->
+      <section id="paid-result" class="section wrap is-hidden" aria-label="in-depth result">
         <div class="result-head">
-          <p class="result-head__name">✦ 심층 사주 완료</p>
+          <p class="result-head__name" id="paid-head" data-i18n="paid_done">✦ In-depth Saju complete</p>
           <p class="result-head__meta" id="paid-meta"></p>
         </div>
         <div class="reading-body" id="paid-body"></div>
         <div class="delivery-note is-hidden" id="delivery-note"></div>
-        <a class="btn btn--gold is-hidden" id="btn-pdf" style="margin-top:16px" download>📜 PDF 사주첩 내려받기</a>
-        <button type="button" class="btn btn--ghost" id="btn-restart" style="margin-top:12px">처음으로</button>
+        <a class="btn btn--gold is-hidden" id="btn-pdf" style="margin-top:16px" download data-i18n="btn_pdf">📜 Download PDF Saju booklet</a>
+        <button type="button" class="btn btn--kakao is-hidden" id="btn-kakao-channel" style="margin-top:12px" data-i18n="kakao_channel">⭐ Add our KakaoTalk channel</button>
+        <button type="button" class="btn btn--ghost" id="btn-restart" style="margin-top:12px" data-i18n="btn_restart">Start over</button>
       </section>
 
       <!-- ===== 제작 안내 ===== -->
-      <section class="section wrap" aria-label="리딩 제작 안내">
+      <section class="section wrap" aria-label="about">
         <div class="accordion">
           <details class="acc">
-            <summary>이 사주는 어떻게 만들어졌나요?</summary>
+            <summary data-i18n="about_summary">How was this Saju created?</summary>
             <div class="acc__body">
-              <p>조선사주는 마자샘 김경희의 특허출원 리딩 구조를 바탕으로 합니다.</p>
-              <p>사주(四柱)·오행·십성의 상징 체계를 함께 살펴 지금의 흐름을 문화적·상징적으로 읽어드립니다.</p>
-              <p style="color:var(--ink-faint)">의료·법률·투자·재무·심리치료 등 전문 자문을 대체하지 않습니다.</p>
+              <p data-i18n="about1">Joseon Saju is based on the patent-pending reading structure of Maja-saem Kim Kyung-hee.</p>
+              <p data-i18n="about2">It reads the symbolic system of Saju, Five Elements and Ten Gods.</p>
+              <p style="color:var(--ink-faint)" data-i18n="about3">It does not replace professional advice.</p>
             </div>
           </details>
         </div>
@@ -291,26 +294,27 @@
     </main>
 
     <footer class="site-footer">
-      <div class="lang" role="group" aria-label="언어 선택">
-        <button type="button" class="lang__btn" data-lang="KOR" aria-pressed="true">한글</button>
-        <button type="button" class="lang__btn" data-lang="ENG" aria-pressed="false">EN</button>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" class="lang__btn" data-lang="ENG" aria-pressed="true">EN</button>
+        <button type="button" class="lang__btn" data-lang="KOR" aria-pressed="false">한글</button>
       </div>
-      <p class="site-footer__disc">사주(四柱)·명리의 상징 체계를 함께 읽는 문화적·상징적 리딩입니다.</p>
-      <p>© 2026 조선사주 · All Rights Reserved</p>
+      <button type="button" class="btn btn--kakao is-hidden" id="btn-kakao-channel-foot" style="max-width:300px;margin:0 auto 14px" data-i18n="kakao_channel">⭐ Add our KakaoTalk channel</button>
+      <p class="site-footer__disc" data-i18n="footer_disc">A cultural, symbolic reading of the Saju and Myeongri tradition.</p>
+      <p data-i18n="footer_copy">© 2026 Joseon Saju · All Rights Reserved</p>
     </footer>
   </div>
 
   <div class="sticky-cta" id="sticky-cta">
-    <div class="wrap"><a href="#search" class="btn btn--gold js-scroll">✦ 무료 사주 맛보기</a></div>
+    <div class="wrap"><a href="#search" class="btn btn--gold js-scroll" data-i18n="hero_cta">✦ Read my Saju — free</a></div>
   </div>
 
+  <script src="/m/js/i18n.js?v=20260602"></script>
+  <script src="/m/js/kakao.js?v=20260602"></script>
   <script src="/m/js/idol-hero.js?v=20260601-idol"></script>
-  <script src="/m/js/funnel.js?v=20260601-joseon"></script>
+  <script src="/m/js/funnel.js?v=20260602-i18n"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js').catch(function () {});
-      });
+      window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });
     }
   </script>
 </body>
