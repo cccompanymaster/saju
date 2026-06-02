@@ -17,6 +17,7 @@ const { computeSaju } = require('./src/saju');
 const { freeReading, paidReading } = require('./src/reading');
 const { confirmPayment, AMOUNT } = require('./src/payment');
 const { deliver } = require('./src/deliver');
+const { renderPdf } = require('./src/pdf');
 
 const app = express();
 app.use(express.json({ limit: '64kb' }));
@@ -68,12 +69,16 @@ app.post('/api/payment/confirm', asyncH(async (req, res) => {
   const saju = computeSaju(birth || {});
   const reading = await paidReading(saju, question);
 
-  // 3) 발송 (이메일/카톡)
+  // 3) PDF 사주첩 생성
+  const pdfBuffer = await renderPdf(saju, reading.text, question);
+
+  // 4) 발송 (이메일=PDF첨부 / 카톡)
   const delivery = await deliver({
     email: contact?.email,
     phone: contact?.phone,
     name: saju.input.name,
     readingText: reading.text,
+    pdfBuffer,
   });
 
   ok(res, {
@@ -82,6 +87,8 @@ app.post('/api/payment/confirm', asyncH(async (req, res) => {
     reading: reading.text,
     source: reading.source,
     delivery,
+    pdfBase64: pdfBuffer ? pdfBuffer.toString('base64') : null,
+    pdfName: `조선사주_${saju.input.name}_사주첩.pdf`,
   });
 }));
 

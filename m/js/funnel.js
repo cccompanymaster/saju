@@ -174,7 +174,20 @@
       var dn = $('#delivery-note');
       var sent = (res.delivery || []).filter(function (d) { return d.ok && !d.skipped; })
         .map(function (d) { return d.channel === 'email' ? '이메일' : '카카오'; });
-      if (sent.length) { dn.textContent = '📨 ' + sent.join(' · ') + '(으)로도 결과를 보내드렸어요.'; show(dn); }
+      if (sent.length) { dn.textContent = '📨 ' + sent.join(' · ') + '(으)로 PDF 사주첩을 보내드렸습니다.'; show(dn); }
+
+      // PDF 즉시 내려받기
+      var pdfBtn = $('#btn-pdf');
+      if (pdfBtn && res.pdfBase64) {
+        try {
+          var bin = atob(res.pdfBase64), len = bin.length, bytes = new Uint8Array(len);
+          for (var i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+          var url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+          pdfBtn.href = url;
+          pdfBtn.setAttribute('download', res.pdfName || '조선사주_사주첩.pdf');
+          show(pdfBtn);
+        } catch (e) { /* ignore */ }
+      }
       hide($('#free-result'));
     }).catch(function (ex) {
       $('#paid-body').innerHTML = '<p class="form-error">리딩 생성 중 오류가 발생했습니다: '

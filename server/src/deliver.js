@@ -26,12 +26,13 @@ function buildEmailHtml(name, readingText) {
     </div></body></html>`;
 }
 
-async function sendEmail(to, name, readingText) {
+async function sendEmail(to, name, readingText, pdfBuffer) {
   if (!to) return { ok: false, skipped: true, reason: 'no-email' };
   const host = process.env.SMTP_HOST;
+  const attachments = pdfBuffer ? [{ filename: `조선사주_${name}_사주첩.pdf`, content: pdfBuffer, contentType: 'application/pdf' }] : [];
   if (!nodemailer || !host) {
-    console.warn(`[deliver] SMTP 미설정 → mock 이메일 (to=${to})`);
-    return { ok: true, mock: true, channel: 'email', to };
+    console.warn(`[deliver] SMTP 미설정 → mock 이메일 (to=${to}, PDF첨부=${attachments.length ? 'Y' : 'N'})`);
+    return { ok: true, mock: true, channel: 'email', to, pdf: !!attachments.length };
   }
   const transporter = nodemailer.createTransport({
     host,
@@ -44,8 +45,9 @@ async function sendEmail(to, name, readingText) {
     to,
     subject: `[조선사주] ${name}님의 심층 사주가 도착했습니다`,
     html: buildEmailHtml(name, readingText),
+    attachments,
   });
-  return { ok: true, mock: false, channel: 'email', to };
+  return { ok: true, mock: false, channel: 'email', to, pdf: !!attachments.length };
 }
 
 async function sendKakao(phone, name, readingText) {
@@ -60,9 +62,9 @@ async function sendKakao(phone, name, readingText) {
   return { ok: true, mock: false, channel: 'kakao', to: phone };
 }
 
-async function deliver({ email, phone, name, readingText }) {
+async function deliver({ email, phone, name, readingText, pdfBuffer }) {
   const results = await Promise.allSettled([
-    sendEmail(email, name, readingText),
+    sendEmail(email, name, readingText, pdfBuffer),
     sendKakao(phone, name, readingText),
   ]);
   return results.map((r) => (r.status === 'fulfilled' ? r.value : { ok: false, error: String(r.reason) }));

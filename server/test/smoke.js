@@ -24,9 +24,11 @@ const { deliver } = require('../src/deliver');
   const pay = await confirmPayment({ paymentKey: 'pk_test', orderId: 'order_1', amount: 3900 });
   assert.ok(pay.ok && pay.mock);
 
-  // 5) 심층 + 발송 (mock)
+  // 5) 심층 + 발송 (mock) — 왕후 어투 · 항목형 · 실제삶 예시
   const paid = await paidReading(s, '이직을 해도 될까요?');
-  assert.match(paid.text, /1\./);
+  assert.ok((paid.text.match(/○/g) || []).length >= 8, '심층은 8개 이상 항목');
+  assert.match(paid.text, /리이다|하오|할지니|마땅하오/, '왕후 어투 포함');
+  assert.match(paid.text, /삶|장면|예/, '실제 삶 예시 포함');
   const d = await deliver({ email: 'a@b.com', phone: '01000000000', name: s.input.name, readingText: paid.text });
   assert.ok(d.every((r) => r.ok));
 
