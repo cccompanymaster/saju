@@ -36,6 +36,31 @@
   <link rel="stylesheet" href="/m/css/app.css?v=20260601-joseon" />
   <link rel="stylesheet" href="/m/css/idol-hero.css?v=20260601-idol" />
 
+  <!-- 구조화 데이터(JSON-LD): 검색 노출·리치결과 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebSite", "name": "조선사주", "url": "https://basic.majatalk.com/m/", "inLanguage": "ko" },
+      { "@type": "Organization", "name": "조선사주", "url": "https://basic.majatalk.com/m/", "logo": "https://basic.majatalk.com/assets/icon-512.png" },
+      {
+        "@type": "Service", "name": "조선사주 심층 사주 리딩", "serviceType": "사주·명리 리딩",
+        "provider": { "@type": "Organization", "name": "조선사주" },
+        "areaServed": "KR", "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "3900", "priceCurrency": "KRW", "description": "심층 사주 리딩 + PDF 사주첩" }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "무료로 무엇을 보나요?", "acceptedAnswer": { "@type": "Answer", "text": "생년월일로 계산한 사주(네 기둥)와 일간·오행으로 본 타고난 기질, 지금의 흐름을 무료로 보여드립니다." } },
+          { "@type": "Question", "name": "심층 사주는 무엇이 다른가요?", "acceptedAnswer": { "@type": "Answer", "text": "질문에 대한 판정, 명리·오행·십성 통합 리딩, 좋은 시기와 주의할 시기, 행동 조언을 조선 왕후 어투의 PDF 사주첩으로 드립니다." } },
+          { "@type": "Question", "name": "출생 시간을 모르면 안 되나요?", "acceptedAnswer": { "@type": "Answer", "text": "모름으로 진행할 수 있으며, 이 경우 시주를 제외하고 시각에 의존하는 해석은 절제합니다." } }
+        ]
+      }
+    ]
+  }
+  </script>
+
   <!-- TossPayments 결제 SDK -->
   <script src="https://js.tosspayments.com/v2/standard"></script>
 </head>
@@ -281,5 +306,12 @@
 
   <script src="/m/js/idol-hero.js?v=20260601-idol"></script>
   <script src="/m/js/funnel.js?v=20260601-joseon"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js').catch(function () {});
+      });
+    }
+  </script>
 </body>
 </html>

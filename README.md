@@ -34,7 +34,9 @@
 
 ```
 manifest.json              PWA 매니페스트
-m/index.html               모바일 랜딩 + 입력 + 결과 (퍼널 UI)
+sw.js                      서비스워커 (오프라인·설치)
+robots.txt / sitemap.xml   SEO
+m/index.html               모바일 랜딩 + 입력 + 결과 (퍼널 UI) + JSON-LD
 m/css/app.css              디자인 시스템 (다크 미스틱 + 골드)
 m/js/funnel.js             퍼널 클라이언트 (무료→결제→심층→발송)
 m/img/                     이미지 에셋 (배포 환경에 배치)
