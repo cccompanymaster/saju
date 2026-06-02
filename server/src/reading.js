@@ -30,6 +30,7 @@ function sajuDeepBrief(s) {
     `양력:${s.solar} 음력:${s.lunar} 띠:${s.zodiac}`,
     pil('년주', P.year), pil('월주', P.month), pil('일주(나)', P.day), pil('시주', P.hour),
     `일간(나):${s.dayMaster.hanja}(${s.dayMaster.gan})·${s.dayMaster.eumyang}${s.dayMaster.ohaeng} — ${s.dayMaster.desc}`,
+    `신강·신약: ${s.dayMaster.strength}(부조세력 ${s.dayMaster.strengthScore}%) / 억부용신: ${s.dayMaster.yongsin.element}(${s.dayMaster.yongsin.hanja}) — ${s.dayMaster.yongsin.reason}`,
     `천간 십성: 년${s.shishen.year} 월${s.shishen.month}${s.shishen.hour ? ' 시' + s.shishen.hour : ''}`,
     `오행 분포: 목${o.count.목} 화${o.count.화} 토${o.count.토} 금${o.count.금} 수${o.count.수} → 강한기운:${o.dominant}, 약한기운:${o.weakest}${o.lacking.length ? ', 없는기운:' + o.lacking.join('·') : ''}`,
     `납음: 일주 ${s.nayin.day} / 공망: ${s.gongmang}`,
@@ -113,8 +114,9 @@ function mockPaid(s, q) {
   const sinsalNames = s.sinsal.map((x) => x.name);
   const sec = [];
 
+  const ys = dm.yongsin;
   sec.push(`○ 명(命)의 큰 그림
-그대는 ${dm.eumyang}${dm.ohaeng} 일간(${dm.hanja})을 기둥 삼아, 사주에 ${o.dominant}의 기운이 가장 두텁고 ${o.weakest}의 기운이 옅은 명이오(${s.pillarsText}). 이는 ${FLOW[o.dominant]} 힘은 넉넉하되, ${o.weakest}이 맡는 자리는 일부러 챙겨야 함을 이르오. 삶으로 보자면 — 한번 마음먹은 일은 끝을 보나, 마무리나 쉼이 필요한 길목에서 스스로를 너무 몰아세우는 장면이 거듭 나타나리이다.`);
+그대는 ${dm.eumyang}${dm.ohaeng} 일간(${dm.hanja})을 기둥 삼아, 사주에 ${o.dominant}의 기운이 가장 두텁고 ${o.weakest}의 기운이 옅은 명이오(${s.pillarsText}). 일간의 힘은 '${dm.strength}'(부조세력 ${dm.strengthScore}푼)이라, ${ys.reason} 이는 ${FLOW[o.dominant]} 힘은 넉넉하되, ${o.weakest}이 맡는 자리는 일부러 챙겨야 함을 이르오. 삶으로 보자면 — 한번 마음먹은 일은 끝을 보나, 마무리나 쉼이 필요한 길목에서 스스로를 너무 몰아세우는 장면이 거듭 나타나리이다.`);
 
   sec.push(`○ 타고난 성정과 그릇
 일간이 ${dm.eumyang}${dm.ohaeng}이요, 십성으로는 ${ts.slice(0, 2).join('·') || '비견'}의 기운이 도드라지오. ${shishenLife(ts[0] || '비견')} 곁의 사람들은 그대를 두고 "겉은 단단한데 속은 정이 많다" 말하기 쉽소. 회의 자리에서 끝까지 제 뜻을 지키다가도, 정작 가까운 이의 부탁엔 약해지는 그 모습이 바로 이 기운이오.`);
@@ -140,7 +142,7 @@ ${q ? `"${q}" 물었으니 답하오. ${cd ? `${cd.shishen}의 대운이 받치�
 
   sec.push(`○ 비방(秘方) — 지금 행할 세 가지
 하나, 미뤄 둔 한 가지를 이레 안에 매듭지으시오(강한 ${o.dominant}을 결실로 돌리는 길이오).
-둘, 옅은 ${lack}의 기운을 채우는 습(習)을 하나 들이시오 — ${ohaengRemedy(lack)}.
+둘, 용신인 ${ys.hanja}(${ys.element})의 기운을 채우는 습(習)을 하나 들이시오 — ${ohaengRemedy(ys.element)}.
 셋, 큰 결정은 충분히 잔 다음 날 아침에 내리시오. 그대의 ${dm.ohaeng} 기운은 새벽에 가장 맑소.`);
 
   sec.push(`○ 왕후의 당부

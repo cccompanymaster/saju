@@ -136,6 +136,7 @@ function buildHtml(saju, readingText, question) {
       ${pillarCol('년주', s.pillars.year)}
     </tr></table>
     <p class="kv">일간(나): <b>${esc(s.dayMaster.hanja)}(${esc(s.dayMaster.gan)})</b> · ${esc(s.dayMaster.eumyang)}${esc(s.dayMaster.ohaeng)} — ${esc(s.dayMaster.desc)}</p>
+    <p class="kv">신강·신약: <b>${esc(s.dayMaster.strength)}</b> (부조세력 ${esc(String(s.dayMaster.strengthScore))}%) · 억부용신: <b>${esc(s.dayMaster.yongsin.hanja)}(${esc(s.dayMaster.yongsin.element)})</b>${s.trueSolar && s.trueSolar.applied ? ` · 진태양시 보정 ${esc(String(s.trueSolar.offsetMin))}분` : ''}</p>
   </div>
 
   <div class="sec grid2">

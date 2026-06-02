@@ -121,6 +121,9 @@ function publicSaju(s) {
     dayMaster: s.dayMaster,
     ohaeng: s.ohaeng,
     shishen: s.shishen,
+    sinsal: s.sinsal,
+    gongmang: s.gongmang,
+    trueSolar: s.trueSolar,
     unknownTime: s.input.unknownTime,
   };
 }

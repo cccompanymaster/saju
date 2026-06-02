@@ -41,6 +41,9 @@ const DISHI_MEAN = {
 /* 오행 생극 */
 const SHENG = { 목:'화', 화:'토', 토:'금', 금:'수', 수:'목' };  // A생B
 const KE    = { 목:'토', 토:'수', 수:'화', 화:'금', 금:'목' };  // A극B
+const GEN_BY = { 목:'수', 화:'목', 토:'화', 금:'토', 수:'금' };  // E를 생하는 오행
+const KE_BY  = { 목:'금', 토:'목', 수:'토', 화:'수', 금:'화' };  // E를 극하는 오행
+const OHAENG_HAN = { 목:'木', 화:'火', 토:'土', 금:'金', 수:'水' };
 
 /* 일간 기준 천간의 십성 계산 (대운 등) */
 function shishenOf(dmHanja, tHanja) {
@@ -80,6 +83,93 @@ function computeSinsal(branches, dayGanHanja, dayZhi, yearZhi) {
   const ce = CHEONEUL[dayGanHanja] || [];
   if (ce.some(has)) found.push({ name: '천을귀인', mean: '귀인의 도움·위기에서 길이 열림' });
   return found;
+}
+
+/* ── 신강/신약 + 용신(억부) ── */
+const TEN_GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+// 일간 대비 오행이 '나를 돕는(印·比)'쪽이면 +, '덜어내는(食傷·財·官)'쪽이면 -
+function isSupporter(dmO, e) { return e === dmO || GEN_BY[dmO] === e; }
+
+/**
+ * 일간 신강/신약 판정 + 억부용신
+ * 월지(득령)·일지·지지(지장간)·천간에 가중치를 두어 부조(扶)와 억(抑)의 세력을 비교.
+ */
+function analyzeStrength(ec, dayGanHanja, unknownTime) {
+  const dmO = GAN_OHAENG[dayGanHanja];
+  let support = 0, drain = 0;
+  const add = (e, w) => { if (!e) return; if (isSupporter(dmO, e)) support += w; else drain += w; };
+
+  // 천간 (일간 자신은 부조로 가산)
+  add(GAN_OHAENG[ec.getYearGan()], 1.0);
+  add(GAN_OHAENG[ec.getMonthGan()], 1.5);
+  add(dmO, 1.0); // 일간 본인
+  if (!unknownTime) add(GAN_OHAENG[ec.getTimeGan()], 1.0);
+
+  // 지지(주된 지장간의 오행) — 월지 득령 최대 가중
+  const branchPrimary = (hide) => GAN_OHAENG[(hide || [])[0]] || '';
+  add(branchPrimary(ec.getYearHideGan()), 1.5);
+  add(branchPrimary(ec.getMonthHideGan()), 3.0); // 월령
+  add(branchPrimary(ec.getDayHideGan()), 2.0);  // 일지
+  if (!unknownTime) add(branchPrimary(ec.getTimeHideGan()), 1.5);
+
+  const total = support + drain || 1;
+  const score = Math.round((support / total) * 100); // 부조 비율(%)
+  let label;
+  if (score >= 58) label = '신강';
+  else if (score <= 42) label = '신약';
+  else label = '중화';
+
+  // 억부용신
+  const cand = {
+    인성: GEN_BY[dmO], 비겁: dmO,
+    식상: SHENG[dmO], 재성: KE[dmO], 관성: KE_BY[dmO],
+  };
+  let yongsin, reason;
+  if (label === '신강') {
+    // 강한 일간은 덜어내야 — 식상/재/관 중 사주에서 가장 옅은 오행으로 균형
+    yongsin = weakestOf(ec, unknownTime, [cand.식상, cand.재성, cand.관성]);
+    reason = `일간이 강하니 ${OHAENG_HAN[yongsin]}(${yongsin})으로 기운을 덜어 흐름을 트는 것이 이롭습니다.`;
+  } else if (label === '신약') {
+    // 약한 일간은 도와야 — 인성/비겁 중 더 옅은 오행
+    yongsin = weakestOf(ec, unknownTime, [cand.인성, cand.비겁]);
+    reason = `일간이 약하니 ${OHAENG_HAN[yongsin]}(${yongsin})으로 뿌리를 받쳐 힘을 보태는 것이 이롭습니다.`;
+  } else {
+    // 중화 — 가장 부족한 오행을 보충(통관·조후 간략)
+    yongsin = weakestOf(ec, unknownTime, ['목', '화', '토', '금', '수']);
+    reason = `기운이 고르니 가장 옅은 ${OHAENG_HAN[yongsin]}(${yongsin})을 보충하면 더 둥글어집니다.`;
+  }
+  return { label, score, yongsin: { element: yongsin, hanja: OHAENG_HAN[yongsin], reason } };
+}
+
+function weakestOf(ec, unknownTime, candidates) {
+  const cnt = { 목: 0, 화: 0, 토: 0, 금: 0, 수: 0 };
+  const gans = [ec.getYearGan(), ec.getMonthGan(), ec.getDayGan()];
+  const jis = [ec.getYearZhi(), ec.getMonthZhi(), ec.getDayZhi()];
+  if (!unknownTime) { gans.push(ec.getTimeGan()); jis.push(ec.getTimeZhi()); }
+  gans.forEach((g) => { const o = GAN_OHAENG[g]; if (o) cnt[o]++; });
+  jis.forEach((j) => { const o = JI_OHAENG[j]; if (o) cnt[o]++; });
+  const uniq = candidates.filter((e, i) => e && candidates.indexOf(e) === i);
+  return uniq.reduce((a, b) => (cnt[b] < cnt[a] ? b : a), uniq[0]);
+}
+
+/* ── 진태양시(경도) 보정 ── */
+const CITY_LON = {
+  서울: 126.98, seoul: 126.98, 인천: 126.71, incheon: 126.71, 수원: 127.03,
+  부산: 129.08, busan: 129.08, 대구: 128.6, daegu: 128.6, 광주: 126.85, gwangju: 126.85,
+  대전: 127.38, daejeon: 127.38, 울산: 129.31, ulsan: 129.31, 제주: 126.53, jeju: 126.53,
+  춘천: 127.73, 강릉: 128.9, 전주: 127.15, 청주: 127.49, 포항: 129.36, 창원: 128.68,
+  평양: 125.75, 도쿄: 139.69, tokyo: 139.69, 오사카: 135.5, 뉴욕: -74.0, newyork: -74.0,
+  la: -118.24, '로스앤젤레스': -118.24, london: -0.13, 런던: -0.13, 베이징: 116.4, beijing: 116.4,
+};
+function lonOf(place) {
+  const key = String(place || '').trim().toLowerCase().replace(/\s|시$|특별시$|광역시$/g, '');
+  for (const k in CITY_LON) { if (k.toLowerCase() === key || key.includes(k.toLowerCase())) return CITY_LON[k]; }
+  return 127.5; // 한반도 평균(미상)
+}
+function shiftClock(Y, M, D, h, mi, offsetMin) {
+  const dt = new Date(Date.UTC(Y, M - 1, D, h, mi));
+  dt.setUTCMinutes(dt.getUTCMinutes() + offsetMin);
+  return { Y: dt.getUTCFullYear(), M: dt.getUTCMonth() + 1, D: dt.getUTCDate(), h: dt.getUTCHours(), mi: dt.getUTCMinutes() };
 }
 
 /* ── 보조 ── */
@@ -122,6 +212,18 @@ function computeSaju(input) {
     solar = Solar.fromYmdHms(Y, M, D, hour, minute, 0);
   }
 
+  // 진태양시 보정(옵션): 출생지 경도 기준으로 시계시각을 보정해 시주를 더 정확히
+  let trueSolar = { applied: false };
+  if (input.trueSolarTime && !unknownTime) {
+    const lon = Number(input.birthLongitude) || lonOf(input.birthPlace);
+    const offsetMin = Math.round((lon - 135) * 4); // 표준시(135°E) 대비 분 보정
+    if (offsetMin !== 0) {
+      const c = shiftClock(solar.getYear(), solar.getMonth(), solar.getDay(), solar.getHour(), solar.getMinute(), offsetMin);
+      solar = Solar.fromYmdHms(c.Y, c.M, c.D, c.h, c.mi, 0);
+    }
+    trueSolar = { applied: true, lon, offsetMin };
+  }
+
   const lunar = solar.getLunar();
   const ec = lunar.getEightChar();
   const dayGanHanja = ec.getDayGan();
@@ -142,6 +244,7 @@ function computeSaju(input) {
   };
 
   const ohaeng = countOhaeng(ec, unknownTime);
+  const strength = analyzeStrength(ec, dayGanHanja, unknownTime);
 
   // 신살
   const branches = [ec.getYearZhi(), ec.getMonthZhi(), ec.getDayZhi()];
@@ -184,6 +287,7 @@ function computeSaju(input) {
       birthPlace: (input.birthPlace || '').trim(),
       age,
     },
+    trueSolar,
     solar: solar.toYmd(),
     lunar: `${lunar.getYear()}-${pad2(Math.abs(lunar.getMonth()))}-${pad2(lunar.getDay())}${lunar.getMonth() < 0 ? ' (윤달)' : ''}`,
     zodiac: ZODIAC[lunar.getYearShengXiao()] || lunar.getYearShengXiao(),
@@ -192,6 +296,8 @@ function computeSaju(input) {
       gan: ganHan(dayGanHanja), hanja: dayGanHanja,
       ohaeng: GAN_OHAENG[dayGanHanja] || '', eumyang: GAN_EUMYANG[dayGanHanja] || '',
       desc: OHAENG_DESC[GAN_OHAENG[dayGanHanja]] || '',
+      strength: strength.label, strengthScore: strength.score,
+      yongsin: strength.yongsin,
     },
     ohaeng,
     shishen,

@@ -46,6 +46,7 @@
       minute: parseInt($('#bt-min').value, 10),
       unknownTime: unknown,
       birthPlace: $('#birth-place').value.trim(),
+      trueSolarTime: $('#bt-truesolar').checked,
     };
   }
 
@@ -53,7 +54,9 @@
   function renderSaju(s) {
     $('#r-name').textContent = s.name + '님의 사주';
     $('#r-meta').textContent = '양력 ' + s.solar + ' · 음력 ' + s.lunar + ' · ' + s.zodiac + '띠'
-      + (s.unknownTime ? ' · (출생시간 모름)' : '');
+      + (s.unknownTime ? ' · (출생시간 모름)' : '')
+      + (s.dayMaster && s.dayMaster.strength ? ' · ' + s.dayMaster.strength
+          + (s.dayMaster.yongsin ? ' · 용신 ' + s.dayMaster.yongsin.hanja : '') : '');
 
     var labels = { year: '년주', month: '월주', day: '일주', hour: '시주' };
     var html = '';
