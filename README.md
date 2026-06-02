@@ -20,7 +20,7 @@
 ④  화면 표시 + PDF 즉시 내려받기 + 이메일(PDF첨부)/카톡 발송
 ```
 
-> **키가 없어도 전체 퍼널이 mock 으로 끝까지 동작**합니다. 실제 연동(Gemini·Toss·SMTP·카카오)은 `.env` 로 켭니다.
+> **키가 없어도 전체 퍼널이 mock 으로 끝까지 동작**합니다. 실제 연동(Claude·Toss·SMTP·카카오)은 `.env` 로 켭니다.
 
 ## 사주 깊이 (철학관 이상)
 
@@ -43,7 +43,7 @@ assets/                    아이콘 / OG 이미지
 server/
   server.js                Express 앱 + 정적 서빙 + API
   src/saju.js              사주 심층 계산 (십성·지장간·운성·납음·공망·대운·신살)
-  src/ai.js                Gemini 어댑터 (+ mock)
+  src/ai.js                Claude(Anthropic SDK) 어댑터 — Opus 4.8·adaptive thinking·캐싱 (+ mock)
   src/reading.js           무료 맛보기 / 유료 심층 (왕후 어투, 삶 예시) (+ mock)
   src/pdf.js               한지풍 PDF 사주첩 렌더 (playwright/chromium, 나눔명조 내장)
   src/payment.js           TossPayments 결제 승인 검증 (+ mock)
@@ -88,7 +88,7 @@ npm test                          # 스모크 테스트
 
 | 변수 | 없을 때 | 용도 |
 |---|---|---|
-| `GEMINI_API_KEY` | mock 풀이 | AI 사주 풀이 (Google AI Studio) |
+| `ANTHROPIC_API_KEY` | mock 풀이 | AI 사주 풀이 (Claude Opus 4.8) |
 | `TOSS_CLIENT_KEY` / `TOSS_SECRET_KEY` | mock 승인 | TossPayments 결제 |
 | `SMTP_*` | mock 로그 | 이메일 발송 |
 | `KAKAO_ALIMTALK_TOKEN` | mock 로그 | 카카오 알림톡(템플릿 승인 필요) |
@@ -105,6 +105,6 @@ npm test                          # 스모크 테스트
 
 ## 남은 작업(연동 시)
 
-- Gemini/Toss/SMTP 실제 키 발급 후 `.env` 설정
+- Claude(Anthropic)/Toss/SMTP 실제 키 발급 후 `.env` 설정
 - 카카오 알림톡: 비즈채널 개설 + 템플릿 승인 → `src/deliver.js` 의 `sendKakao` 연동 지점 구현
 - (선택) 결제 영수증/주문 저장용 DB, 결과 재열람 마이페이지

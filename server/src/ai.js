@@ -1,30 +1,58 @@
 'use strict';
 /**
- * ai.js — AI 사주 풀이 어댑터
- * 기본은 Google Gemini(REST). GEMINI_API_KEY 가 없으면 mock 으로 끝까지 동작한다.
+ * ai.js — Claude(Anthropic) 어댑터
+ * 공식 SDK(@anthropic-ai/sdk) 사용. ANTHROPIC_API_KEY 가 없으면 null 반환 → 호출 측 mock.
+ *
+ * - 모델: Claude Opus 4.8 (claude-opus-4-8)
+ * - adaptive thinking: 사주 해석은 다단 추론이 필요하므로 켠다
+ * - 스트리밍: 출력이 길어 요청 타임아웃을 피하려고 stream + finalMessage 사용
+ * - 프롬프트 캐싱: 재사용되는 페르소나/용어집(system)에 cache_control 부여
  */
-const MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+let Anthropic = null;
+try { Anthropic = require('@anthropic-ai/sdk'); Anthropic = Anthropic.default || Anthropic; }
+catch (_) { /* SDK 미설치 → mock 경로 */ }
 
-async function generate(prompt, { maxTokens = 1024, temperature = 0.9 } = {}) {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) return null; // 호출 측에서 mock 으로 대체
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${key}`;
-  const body = {
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: { temperature, maxOutputTokens: maxTokens },
-  };
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const t = await res.text().catch(() => '');
-    throw new Error(`Gemini 오류 ${res.status}: ${t.slice(0, 300)}`);
-  }
-  const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';
-  return text.trim();
+const MODEL = process.env.CLAUDE_MODEL || 'claude-opus-4-8';
+const EFFORT = process.env.CLAUDE_EFFORT || 'high'; // low | medium | high | xhigh | max
+
+let client = null;
+function getClient() {
+  if (!Anthropic || !process.env.ANTHROPIC_API_KEY) return null;
+  if (!client) client = new Anthropic(); // ANTHROPIC_API_KEY 자동 사용
+  return client;
 }
 
-module.exports = { generate, hasKey: () => !!process.env.GEMINI_API_KEY };
+/**
+ * @param {string} system  재사용되는 안정적 프롬프트(페르소나·용어집) → 캐싱 대상
+ * @param {string} user    요청별로 달라지는 사주 데이터·지시문
+ * @param {object} opts    { maxTokens }
+ * @returns {Promise<string|null>}  실패/키없음이면 null
+ */
+async function generate(system, user, { maxTokens = 2048 } = {}) {
+  const c = getClient();
+  if (!c) return null;
+
+  const stream = c.messages.stream({
+    model: MODEL,
+    max_tokens: maxTokens,
+    thinking: { type: 'adaptive' },
+    output_config: { effort: EFFORT },
+    system: [
+      { type: 'text', text: system, cache_control: { type: 'ephemeral' } },
+    ],
+    messages: [{ role: 'user', content: user }],
+  });
+
+  const msg = await stream.finalMessage();
+  return msg.content
+    .filter((b) => b.type === 'text')
+    .map((b) => b.text)
+    .join('')
+    .trim();
+}
+
+module.exports = {
+  generate,
+  hasKey: () => !!(Anthropic && process.env.ANTHROPIC_API_KEY),
+  model: () => MODEL,
+};

@@ -2,7 +2,7 @@
 /**
  * reading.js — 사주 데이터 → 무료 맛보기 / 유료 심층(왕후 어투)
  * 조선 왕후(중전마마)의 어투로, 사주 근거 + '실제 삶에서 이렇게 드러난다'는
- * 구체적 장면 예시를 담는다. AI 키가 있으면 Gemini, 없으면 데이터 기반 mock.
+ * 구체적 장면 예시를 담는다. AI 키가 있으면 Claude(Opus 4.8), 없으면 데이터 기반 mock.
  */
 const ai = require('./ai');
 
@@ -16,6 +16,9 @@ const GLOSSARY = `[십성 뜻] 비견:주체·동료·경쟁 / 겁재:추진·�
 상관:재능·언변·자유 / 편재:활동적 재물·사업·기회 / 정재:안정적 재물·성실·배우자 /
 편관:도전·압박·권위(칠살) / 정관:명예·직책·규범 / 편인:직관·전문·고독 / 정인:학문·문서·인덕.
 [십이운성] 장생·관대·건록·제왕=기운이 오르는 때, 쇠·병·사·묘=거두는 때, 절·태·양=전환·잉태·준비.`;
+
+// 모든 호출에서 재사용되는 안정적 system (프롬프트 캐싱 대상)
+const SYSTEM = `${ROYAL_PERSONA}\n\n${GLOSSARY}`;
 
 /* 사주 핵심 압축(프롬프트용) */
 function sajuDeepBrief(s) {
@@ -41,13 +44,13 @@ function genderText(g) { return g === 'M' ? '남자' : g === 'F' ? '여자' : '�
 
 /* ── 무료 맛보기: 짧게, 왕후 어투, 여운 ── */
 async function freeReading(saju) {
-  const prompt = `${ROYAL_PERSONA}\n\n${GLOSSARY}\n\n[사주]\n${sajuDeepBrief(saju)}\n
+  const user = `[사주]\n${sajuDeepBrief(saju)}\n
 [명하노라] 위 사주로 '무료 맛보기'를 짓되, 조선 왕후의 어투로 하라.
 - 세 단락, 각 2문장 이내(총 5문장 이내).
 - ① 일간으로 본 그대의 타고난 그릇 한 줄 정의 ② 지금 흐름(현재 대운/강한 기운)의 한 장면 ③ 더 깊은 천기는 '심층'에서 밝혀짐을 품위 있게 암시.
 - 광고 문구·마크다운 기호 금지. 자연스러운 옛말 문장으로.`;
   try {
-    const text = await ai.generate(prompt, { maxTokens: 520, temperature: 0.95 });
+    const text = await ai.generate(SYSTEM, user, { maxTokens: 2000 });
     if (text) return { text, source: 'ai' };
   } catch (e) { console.warn('[freeReading] AI 실패→mock:', e.message); }
   return { text: mockFree(saju), source: 'mock' };
@@ -56,7 +59,7 @@ async function freeReading(saju) {
 /* ── 유료 심층: 길고 상세, 항목별 근거 + 실제 삶 예시, 왕후 어투(PDF용) ── */
 async function paidReading(saju, question) {
   const q = (question || '').trim();
-  const prompt = `${ROYAL_PERSONA}\n\n${GLOSSARY}\n\n[사주]\n${sajuDeepBrief(saju)}\n
+  const user = `[사주]\n${sajuDeepBrief(saju)}\n
 [그대의 물음] ${q || '(따로 묻지 않음 — 명 전반을 살펴라)'}\n
 [명하노라] 아래 항목을 모두, 조선 왕후의 어투로 상세히 지어라. 각 항목 제목을 '○ 제목' 형식으로 그대로 쓰고 줄바꿈으로 나누라.
 규칙:
@@ -75,7 +78,7 @@ async function paidReading(saju, question) {
 ○ 비방(秘方) — 지금 행할 세 가지
 ○ 왕후의 당부`;
   try {
-    const text = await ai.generate(prompt, { maxTokens: 3200, temperature: 0.9 });
+    const text = await ai.generate(SYSTEM, user, { maxTokens: 8000 });
     if (text) return { text, source: 'ai' };
   } catch (e) { console.warn('[paidReading] AI 실패→mock:', e.message); }
   return { text: mockPaid(saju, q), source: 'mock' };

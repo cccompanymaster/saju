@@ -43,7 +43,7 @@ app.get('/api/config', (req, res) => {
   ok(res, {
     price: AMOUNT,
     clientKey: process.env.TOSS_CLIENT_KEY || '',
-    aiEnabled: !!process.env.GEMINI_API_KEY,
+    aiEnabled: !!process.env.ANTHROPIC_API_KEY,
   });
 });
 
@@ -128,7 +128,7 @@ function publicSaju(s) {
 const PORT = Number(process.env.PORT || 3000);
 app.listen(PORT, () => {
   console.log(`🏯 조선사주 서버: http://localhost:${PORT}/m/`);
-  console.log(`   AI(Gemini): ${process.env.GEMINI_API_KEY ? 'ON' : 'mock'} | Toss: ${process.env.TOSS_SECRET_KEY ? 'ON' : 'mock'} | 가격: ${AMOUNT}원`);
+  console.log(`   AI(Claude): ${process.env.ANTHROPIC_API_KEY ? 'ON' : 'mock'} | Toss: ${process.env.TOSS_SECRET_KEY ? 'ON' : 'mock'} | 가격: ${AMOUNT}원`);
 });
 
 module.exports = app;
