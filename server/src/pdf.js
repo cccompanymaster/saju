@@ -26,17 +26,20 @@ function fontFaceCss() {
 }
 
 const O_COLOR = { 목: '#2e6da4', 화: '#c0392b', 토: '#c9a227', 금: '#6b7178', 수: '#2b2b38' };
+const SS_EN = { 비견: 'Companion', 겁재: 'Rival', 식신: 'Output', 상관: 'Hurting Off.', 편재: 'Ind.Wealth', 정재: 'Dir.Wealth', 편관: 'Seven Kill.', 정관: 'Dir.Officer', 편인: 'Ind.Resource', 정인: 'Dir.Resource' };
+const DI_EN = { 장생: 'Growth', 목욕: 'Bath', 관대: 'Cap', 건록: 'Officer', 제왕: 'Peak', 쇠: 'Decline', 병: 'Sickness', 사: 'Death', 묘: 'Tomb', 절: 'Severance', 태: 'Womb', 양: 'Nurture' };
+const en = (x) => x === 'en';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
-function pillarCol(label, p) {
-  if (!p) return `<td class="mx"><div class="lbl">${label}</div><div class="gan" style="color:#999">·</div><div class="ji" style="color:#999">·</div><div class="sub">모름</div><div class="sub"></div><div class="sub"></div></td>`;
+function pillarCol(label, p, lang) {
+  if (!p) return `<td class="mx"><div class="lbl">${label}</div><div class="gan" style="color:#999">·</div><div class="ji" style="color:#999">·</div><div class="sub">${en(lang) ? 'unknown' : '모름'}</div><div class="sub"></div><div class="sub"></div></td>`;
   return `<td class="mx">
     <div class="lbl">${label}</div>
     <div class="gan" style="color:${O_COLOR[p.ohaeng] || '#221b14'}">${esc(p.hanja[0])}</div>
     <div class="ji" style="color:${O_COLOR[p.jiOhaeng] || '#221b14'}">${esc(p.hanja[1])}</div>
-    <div class="sub">${esc(p.han)}</div>
-    <div class="sub">${esc(p.dishi || '')}</div>
-    <div class="sub">${esc(p.hideGan.join('·'))}</div>
+    <div class="sub">${en(lang) ? esc(DI_EN[p.dishi] || p.dishi || '') : esc(p.han)}</div>
+    <div class="sub">${en(lang) ? '' : esc(p.dishi || '')}</div>
+    <div class="sub">${en(lang) ? '' : esc(p.hideGan.join('·'))}</div>
   </td>`;
 }
 
@@ -48,10 +51,13 @@ function ohaengBars(o) {
   }).join('');
 }
 
-function daeunStrip(s) {
+function daeunStrip(s, lang) {
   return s.daeun.slice(0, 8).map((d) => {
     const on = s.currentDaeun && d.age === s.currentDaeun.age;
-    return `<div class="du ${on ? 'on' : ''}"><div class="dua">${d.age}세</div><div class="duh">${esc(d.han)}</div><div class="dus">${esc(d.shishen)}</div></div>`;
+    const age = en(lang) ? d.age : (d.age + '세');
+    const gz = en(lang) ? d.hanja : d.han;
+    const ss = en(lang) ? (SS_EN[d.shishen] || d.shishen) : d.shishen;
+    return `<div class="du ${on ? 'on' : ''}"><div class="dua">${age}</div><div class="duh">${esc(gz)}</div><div class="dus">${esc(ss)}</div></div>`;
   }).join('');
 }
 
@@ -154,10 +160,10 @@ function buildHtml(saju, readingText, question, lang) {
   <div class="sec card">
     <p class="h-eye">${t.myeong}</p>
     <table class="myeong"><tr>
-      ${pillarCol(t.pHour, s.pillars.hour)}
-      ${pillarCol(t.pDay, s.pillars.day)}
-      ${pillarCol(t.pMonth, s.pillars.month)}
-      ${pillarCol(t.pYear, s.pillars.year)}
+      ${pillarCol(t.pHour, s.pillars.hour, lang)}
+      ${pillarCol(t.pDay, s.pillars.day, lang)}
+      ${pillarCol(t.pMonth, s.pillars.month, lang)}
+      ${pillarCol(t.pYear, s.pillars.year, lang)}
     </tr></table>
     <p class="kv">${t.dm}: <b>${esc(s.dayMaster.hanja)}(${esc(s.dayMaster.gan)})</b> · ${esc(s.dayMaster.eumyang)}${esc(s.dayMaster.ohaeng)}</p>
     <p class="kv">${t.strength}: <b>${esc(strengthTxt)}</b> (${t.support} ${esc(String(s.dayMaster.strengthScore))}%) · ${t.yongsin}: <b>${esc(s.dayMaster.yongsin.hanja)}(${esc(s.dayMaster.yongsin.element)})</b>${s.trueSolar && s.trueSolar.applied ? ` · ${t.truesolar} ${esc(String(s.trueSolar.offsetMin))}m` : ''}</p>
@@ -179,8 +185,8 @@ function buildHtml(saju, readingText, question, lang) {
 
   <div class="sec card">
     <p class="h-eye">${t.daeun}</p>
-    <div class="duwrap">${daeunStrip(s)}</div>
-    ${s.currentDaeun ? `<p class="kv">${t.now} ${esc(String(s.input.age))}${t.nowMid} <b>${esc(s.currentDaeun.han)}</b> · <b>${esc(s.currentDaeun.shishen)}</b>${t.nowEnd}</p>` : ''}
+    <div class="duwrap">${daeunStrip(s, lang)}</div>
+    ${s.currentDaeun ? `<p class="kv">${t.now} ${esc(String(s.input.age))}${t.nowMid} <b>${esc(en(lang) ? s.currentDaeun.hanja : s.currentDaeun.han)}</b> · <b>${esc(en(lang) ? (SS_EN[s.currentDaeun.shishen] || s.currentDaeun.shishen) : s.currentDaeun.shishen)}</b>${t.nowEnd}</p>` : ''}
   </div>
 
   <div class="reading">

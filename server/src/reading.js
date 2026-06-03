@@ -276,6 +276,11 @@ const REMEDY_EN = {
   수: 'ample water and sleep, quiet reflection, and shades of black and deep blue',
 };
 const STRENGTH_EN = { 신강: 'strong', 중화: 'balanced', 신약: 'weak' };
+const SHISHEN_EN = {
+  비견: 'Companion', 겁재: 'Rival', 식신: 'Output', 상관: 'Hurting Officer', 편재: 'Indirect Wealth',
+  정재: 'Direct Wealth', 편관: 'Seven Killings', 정관: 'Direct Officer', 편인: 'Indirect Resource', 정인: 'Direct Resource',
+};
+function ssEn(k) { return SHISHEN_EN[k] || k; }
 function dmDescEn(o) {
   return ({ 목: 'a steady, growing, planning force like a tree', 화: 'a bright, expressive, passionate force like fire',
     토: 'a trustworthy, embracing, centering force like earth', 금: 'a decisive force that concludes firmly like metal',
@@ -285,7 +290,7 @@ function mockFreeEn(s) {
   const dm = s.dayMaster, o = s.ohaeng, cd = s.currentDaeun;
   return [
     `Looking upon your chart, you were born under a ${dm.eumyang === '양' ? 'Yang' : 'Yin'} ${OHAENG_EN[dm.ohaeng]} Day Master (${dm.hanja}) — ${dmDescEn(dm.ohaeng)} at the center of who you are.`,
-    `At present the ${OHAENG_EN[o.dominant]} force runs thick, so a season of ${FLOW_EN[o.dominant]} is rising${cd ? `, and the ${cd.shishen} Luck Pillar (${cd.han}) now lights that path.` : '.'}`,
+    `At present the ${OHAENG_EN[o.dominant]} force runs thick, so a season of ${FLOW_EN[o.dominant]} is rising${cd ? `, and the ${ssEn(cd.shishen)} Luck Pillar (${cd.hanja}) now lights that path.` : '.'}`,
     `Yet the deeper turns of wealth, bonds and timing cannot all be laid bare here; their full shape is revealed in the in-depth reading.`,
   ].join('\n\n');
 }
@@ -299,20 +304,20 @@ function mockPaidEn(s, q) {
   sec.push(`○ The Great Shape of the Destiny
 You stand upon a ${dm.eumyang === '양' ? 'Yang' : 'Yin'} ${OHAENG_EN[dm.ohaeng]} Day Master (${dm.hanja}); in your chart ${OHAENG_EN[o.dominant]} is thickest and ${OHAENG_EN[o.weakest]} runs thin (${pillarsEn}). Your Day Master is '${STRENGTH_EN[dm.strength] || dm.strength}' (supporting force ${dm.strengthScore}%), so ${OHAENG_EN[ys.element]} is your useful element — drawing on it brings balance. In life this means: what you resolve, you finish — yet at the junctures that ask for rest or completion you tend to drive yourself too hard.`);
   sec.push(`○ Innate Temperament and Vessel
-Your Day Master is ${OHAENG_EN[dm.ohaeng]}, and the ${ts.slice(0, 2).join(' / ') || 'Companion'} energies stand out. Those near you may say, "firm on the outside, but warm within." In a meeting you hold your ground to the end, yet for a close friend's request you soften — that is precisely this energy at work.`);
+Your Day Master is ${OHAENG_EN[dm.ohaeng]}, and the ${ts.slice(0, 2).map(ssEn).join(' / ') || 'Companion'} energies stand out. Those near you may say, "firm on the outside, but warm within." In a meeting you hold your ground to the end, yet for a close friend's request you soften — that is precisely this energy at work.`);
   sec.push(`○ The Path of Wealth
 Wealth is read through the Wealth and Output stars. Your chart ${has(['편재', '정재']) ? 'holds Wealth stars, so you have the power to earn and hold by your own hand' : 'does not show strong Wealth stars, so steady accumulation suits you better than one large strike'}${has(['식신', '상관']) ? ', and your talent flows into income.' : ', and putting trust in people first lets wealth follow.'} In life: rather than the year you impulsively move large sums, your coffers fill in the year you make small promises and contracts precise.`);
   sec.push(`○ Work and Honor
-Office and standing are read through the Officer and Resource stars. ${has(['정관', '편관']) ? 'Officer stars are present, so responsibility and title seek you out' : 'Officer stars run thin, so building your own domain suits you more than serving under others'}; ${has(['정인', '편인']) ? 'and Resource stars support you, granting the favor of learning and documents.' : 'and learning shines when you cut your own path.'} ${cd ? `Now the ${cd.shishen} Luck Pillar (${cd.han}) is upon you — ${shishenFlowEn(cd.shishen)}` : ''} In life: where you accept the charge an elder hands you, your name rises.`);
+Office and standing are read through the Officer and Resource stars. ${has(['정관', '편관']) ? 'Officer stars are present, so responsibility and title seek you out' : 'Officer stars run thin, so building your own domain suits you more than serving under others'}; ${has(['정인', '편인']) ? 'and Resource stars support you, granting the favor of learning and documents.' : 'and learning shines when you cut your own path.'} ${cd ? `Now the ${ssEn(cd.shishen)} Luck Pillar (${cd.hanja}) is upon you — ${shishenFlowEn(cd.shishen)}` : ''} In life: where you accept the charge an elder hands you, your name rises.`);
   sec.push(`○ Bonds and Family
-The seat of the partner is the Day Branch, ${ds.ji}. ${s.sinsal.some((x) => x.name === '도화살') ? 'A "Peach Blossom" charm draws people to you — yet do not take the weight of a bond lightly.' : 'You last longest with one whose inner grain matches yours rather than the dazzling match.'} In life: beside the one who reads even your silences, your heart settles.`);
+The seat of the partner is the Day Branch, ${ds.hanja[1]}. ${s.sinsal.some((x) => x.name === '도화살') ? 'A "Peach Blossom" charm draws people to you — yet do not take the weight of a bond lightly.' : 'You last longest with one whose inner grain matches yours rather than the dazzling match.'} In life: beside the one who reads even your silences, your heart settles.`);
   sec.push(`○ Health and Heart
 ${OHAENG_EN[lackEl]} runs thin in you, which governs ${bodyEn(lackEl)}. When, after overexerting, the signs come, take them as a message from the body and rest. If you often hold work late into the night and sink the whole next day, that is the very place your balance has broken.`);
   sec.push(`○ The Flow of Fortune — Now and Ahead
-${cd ? `You are now in the ${cd.han} Luck Pillar, a time of ${cd.shishen}. ${shishenFlowEn(cd.shishen)}` : 'You stand upon the great current of your Luck Pillars.'}
-Your coming decades: ${s.daeun.slice(0, 6).map((d) => `age ${d.age} ${d.han} (${d.shishen})`).join(', ')}. ${goodYearsEn(s)}`);
+${cd ? `You are now in the ${cd.hanja} Luck Pillar, a time of ${ssEn(cd.shishen)} — ${shishenFlowEn(cd.shishen)}` : 'You stand upon the great current of your Luck Pillars.'}
+Your coming decades: ${s.daeun.slice(0, 6).map((d) => `age ${d.age} ${d.hanja} (${ssEn(d.shishen)})`).join(', ')}. ${goodYearsEn(s)}`);
   sec.push(`○ The Answer to Your Question
-${q ? `You asked: "${q}". ${cd ? `With the ${cd.shishen} Luck Pillar supporting you, ` : ''}rather than forcing the matter, it is wiser to align the grain, take one measured beat, then move. ${has(['정관', '정재']) ? 'Set things rightly in place and a path opens;' : 'Haste invites trouble;'} move when the timing shows itself, and you will not go astray.` : 'You did not ask a particular question, but the chart shows this is a season better for preparing than for launching. Choose one clear intention, and the answer will sharpen on its own.'}`);
+${q ? `You asked: "${q}". ${cd ? `With the ${ssEn(cd.shishen)} Luck Pillar supporting you, ` : ''}rather than forcing the matter, it is wiser to align the grain, take one measured beat, then move. ${has(['정관', '정재']) ? 'Set things rightly in place and a path opens;' : 'Haste invites trouble;'} move when the timing shows itself, and you will not go astray.` : 'You did not ask a particular question, but the chart shows this is a season better for preparing than for launching. Choose one clear intention, and the answer will sharpen on its own.'}`);
   sec.push(`○ The Remedy — Three Things to Do Now
 First, finish within seven days the one thing you have put off (this turns your strong ${OHAENG_EN[o.dominant]} into harvest).
 Second, take up one habit that feeds your useful element, ${OHAENG_EN[ys.element]} — ${REMEDY_EN[ys.element]}.
