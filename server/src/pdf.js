@@ -61,13 +61,28 @@ function daeunStrip(s, lang) {
   }).join('');
 }
 
-function readingHtml(text) {
-  return String(text || '').split('\n').map((line) => {
-    const t = line.trim();
-    if (!t) return '';
-    if (/^○\s/.test(t)) return `<h2 class="rh">${esc(t.replace(/^○\s*/, ''))}</h2>`;
-    return `<p class="rp">${esc(t)}</p>`;
-  }).join('');
+function renderReading(text, lang) {
+  const lines = String(text || '').split('\n');
+  let body = '', toc = '', chapN = 0;
+  for (const raw of lines) {
+    const t = raw.trim();
+    if (!t) continue;
+    if (/^◆\s/.test(t)) {
+      chapN++;
+      const full = t.replace(/^◆\s*/, '');
+      const parts = full.split(' :: ');
+      const title = parts[0], sub = parts[1] || '';
+      toc += `<div class="toc-chap">${esc(title)}</div>`;
+      body += `<section class="chap-divider"><div class="chap-kicker">${en(lang) ? 'CHAPTER' : '章'}</div><div class="chap-title">${esc(title)}</div>${sub ? `<div class="chap-sub">${esc(sub)}</div>` : ''}<div class="chap-seal">四</div></section>`;
+    } else if (/^○\s/.test(t)) {
+      const title = t.replace(/^○\s*/, '');
+      toc += `<div class="toc-sec">${esc(title)}</div>`;
+      body += `<h2 class="rh">${esc(title)}</h2>`;
+    } else {
+      body += `<p class="rp">${esc(t)}</p>`;
+    }
+  }
+  return { body, toc };
 }
 
 const L = {
@@ -98,11 +113,13 @@ function buildHtml(saju, readingText, question, lang) {
   const today = new Date().toISOString().slice(0, 10);
   const sinsal = s.sinsal.map((x) => `<span class="chip">${esc(x.name)}</span>`).join(' ');
   const strengthTxt = (STRENGTH_PDF[s.dayMaster.strength] || {})[lang === 'en' ? 'en' : 'ko'] || s.dayMaster.strength;
+  const { body, toc } = renderReading(readingText, lang);
   return `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"/>
 <style>
   ${fontFaceCss()}
   * { box-sizing: border-box; }
-  @page { size: A4; margin: 14mm 14mm 16mm; }
+  @page { size: A4; margin: 0; }
+  .pad { padding: 14mm 14mm; }
   body { font-family: 'NM', serif; color: #221b14; margin: 0;
     background: #f3ead4;
     background-image: repeating-linear-gradient(90deg, rgba(120,90,40,.04) 0 1px, transparent 1px 3px), repeating-linear-gradient(0deg, rgba(120,90,40,.03) 0 1px, transparent 1px 4px);
@@ -141,64 +158,99 @@ function buildHtml(saju, readingText, question, lang) {
   .dus { font-size:10px; color:#5a4c3b; }
   /* 본문 */
   .reading { margin-top:18px; }
-  h2.rh { font-size:19px; font-weight:800; color:#16263f; margin:0 0 14px; padding:0 0 8px; border-bottom:2px solid #b8362a; page-break-before:always; page-break-after:avoid; }
+  h2.rh { font-size:18px; font-weight:800; color:#16263f; margin:0 0 12px; padding:0 0 7px; border-bottom:1.5px solid #b8362a; page-break-before:always; page-break-after:avoid; }
   h2.rh::before { content:"❖ "; color:#b8362a; }
-  p.rp { font-size:14px; line-height:2.15; margin:0 0 12px; text-align:justify; }
+  p.rp { font-size:14px; line-height:2.05; margin:0 0 11px; text-align:justify; }
+
+  /* 표지 */
+  .cover-page { height:270mm; page-break-after:always; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    background:linear-gradient(180deg,#16263f,#0d1a2e); color:#f3ead4; }
+  .cover-page::before { content:""; position:absolute; inset:10mm; border:1.5px solid rgba(201,166,74,.5); border-radius:4px; }
+  .cover-page::after { content:""; position:absolute; inset:12mm; border:0.5px solid rgba(201,166,74,.3); border-radius:3px; }
+  .cv-seal { width:64px;height:64px;display:grid;place-items:center;background:#b8362a;color:#fff;font-weight:800;font-size:26px;border-radius:8px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);margin-bottom:22px; }
+  .cv-title { font-size:46px;font-weight:800;letter-spacing:12px;color:#fff;margin:0 0 6px; }
+  .cv-sub { font-size:15px;letter-spacing:10px;color:#c9a64a;margin:0 0 30px; }
+  .cv-line { width:42px;height:2px;background:#c9a64a;margin:0 auto 30px; }
+  .cv-who { font-size:20px;color:#f3ead4;margin:0 0 6px; }
+  .cv-meta { font-size:12px;color:rgba(243,234,212,.7);margin:3px 0; }
+  .cv-foot { position:absolute; bottom:18mm; left:0; right:0; font-size:11px; color:rgba(243,234,212,.55); letter-spacing:2px; }
+
+  /* 목차 */
+  .toc-page { page-break-after:always; }
+  .toc-h { font-size:24px;font-weight:800;color:#16263f;letter-spacing:4px;text-align:center;margin:6mm 0 2mm; }
+  .toc-h-sub { text-align:center;color:#b8362a;letter-spacing:3px;font-size:12px;margin:0 0 8mm; }
+  .toc-chap { font-size:15px;font-weight:800;color:#16263f;margin:14px 0 4px;padding-bottom:4px;border-bottom:1px dotted #c9b27f; }
+  .toc-sec { font-size:12.5px;color:#5a4c3b;margin:3px 0 3px 14px; }
+  .toc-sec::before { content:"· "; color:#b8362a; }
+
+  /* 장 배너 (인라인) */
+  .chap-divider { page-break-before:always; text-align:center; margin:0 0 4px; padding:10mm 0 6mm; border-top:2px solid #16263f; border-bottom:1px solid #c9b27f; }
+  .chap-kicker { color:#b8362a; letter-spacing:6px; font-size:11px; margin-bottom:8px; }
+  .chap-title { font-size:24px; font-weight:800; color:#16263f; letter-spacing:3px; margin:0 0 8px; }
+  .chap-sub { font-size:12px; color:#8a7d6c; margin:0 0 10px; }
+  .chap-seal { width:36px;height:36px;display:inline-grid;place-items:center;background:#b8362a;color:#fff;font-weight:800;border-radius:6px;font-size:15px; }
+  .chap-divider + h2.rh { page-break-before:avoid; }
+  .chart-page { page-break-after:always; }
   .ask { font-size:12px; color:#5a4c3b; background:#fbeeeb; border:1px solid #e7c3bb; border-radius:6px; padding:10px 12px; margin-top:10px; }
   .foot { margin-top:22px; padding-top:12px; border-top:1px solid #d8c39a; font-size:10.5px; color:#93826a; line-height:1.6; text-align:center; }
   .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 </style></head><body>
 
-  <div class="cover">
-    <div class="seal">四</div>
-    <h1>${lang === 'en' ? 'JOSEON SAJU' : '조선사주'}</h1>
-    <div class="sub">${t.cover_sub}</div>
-    <div class="who">${esc(s.input.name)}${t.booklet}</div>
-    <div class="meta">${esc(s.solar)} · ${esc(s.lunar)} · ${esc(s.zodiac)} · ${esc(t.gender[s.input.gender] || '-')}</div>
-    <div class="meta">${t.issued} ${esc(today)}</div>
+  <div class="cover-page">
+    <div class="cv-seal">四</div>
+    <div class="cv-title">${lang === 'en' ? 'JOSEON SAJU' : '조선사주'}</div>
+    <div class="cv-sub">${t.cover_sub}</div>
+    <div class="cv-line"></div>
+    <div class="cv-who">${esc(s.input.name)}${t.booklet}</div>
+    <div class="cv-meta">${esc(s.solar)} · ${esc(s.lunar)} · ${esc(s.zodiac)} · ${esc(t.gender[s.input.gender] || '-')}</div>
+    <div class="cv-meta">${t.issued} ${esc(today)}</div>
+    <div class="cv-foot">${lang === 'en' ? 'based on the patent-pending reading structure of Maja-saem Kim Kyung-hee' : '마자샘 김경희 특허출원 리딩 구조 기반'}</div>
   </div>
 
-  <div class="sec card">
-    <p class="h-eye">${t.myeong}</p>
-    <table class="myeong"><tr>
-      ${pillarCol(t.pHour, s.pillars.hour, lang)}
-      ${pillarCol(t.pDay, s.pillars.day, lang)}
-      ${pillarCol(t.pMonth, s.pillars.month, lang)}
-      ${pillarCol(t.pYear, s.pillars.year, lang)}
-    </tr></table>
-    <p class="kv">${t.dm}: <b>${esc(s.dayMaster.hanja)}(${esc(s.dayMaster.gan)})</b> · ${esc(s.dayMaster.eumyang)}${esc(s.dayMaster.ohaeng)}</p>
-    <p class="kv">${t.strength}: <b>${esc(strengthTxt)}</b> (${t.support} ${esc(String(s.dayMaster.strengthScore))}%) · ${t.yongsin}: <b>${esc(s.dayMaster.yongsin.hanja)}(${esc(s.dayMaster.yongsin.element)})</b>${s.trueSolar && s.trueSolar.applied ? ` · ${t.truesolar} ${esc(String(s.trueSolar.offsetMin))}m` : ''}</p>
+  <div class="toc-page pad">
+    <div class="toc-h">${lang === 'en' ? 'Contents' : '목 차'}</div>
+    <div class="toc-h-sub">${t.cover_sub}</div>
+    ${toc}
   </div>
 
-  <div class="sec grid2">
-    <div class="card">
-      <p class="h-eye">${t.ohaeng}</p>
-      ${ohaengBars(s.ohaeng)}
-      <p class="kv">${t.strong} <b>${esc(s.ohaeng.dominant)}</b> · ${t.weak} <b>${esc(s.ohaeng.weakest)}</b></p>
+  <div class="chart-page pad">
+    <div class="sec card">
+      <p class="h-eye">${t.myeong}</p>
+      <table class="myeong"><tr>
+        ${pillarCol(t.pHour, s.pillars.hour, lang)}
+        ${pillarCol(t.pDay, s.pillars.day, lang)}
+        ${pillarCol(t.pMonth, s.pillars.month, lang)}
+        ${pillarCol(t.pYear, s.pillars.year, lang)}
+      </tr></table>
+      <p class="kv">${t.dm}: <b>${esc(s.dayMaster.hanja)}(${esc(s.dayMaster.gan)})</b> · ${esc(s.dayMaster.eumyang)}${esc(s.dayMaster.ohaeng)}</p>
+      <p class="kv">${t.strength}: <b>${esc(strengthTxt)}</b> (${t.support} ${esc(String(s.dayMaster.strengthScore))}%) · ${t.yongsin}: <b>${esc(s.dayMaster.yongsin.hanja)}(${esc(s.dayMaster.yongsin.element)})</b>${s.trueSolar && s.trueSolar.applied ? ` · ${t.truesolar} ${esc(String(s.trueSolar.offsetMin))}m` : ''}</p>
     </div>
-    <div class="card">
-      <p class="h-eye">${t.sinsalHead}</p>
-      <div class="chips">${sinsal || `<span class="chip" style="color:#93826a;border-color:#ddd;background:#f3f0e8">${t.noSinsal}</span>`}</div>
-      <p class="kv">${t.gongmang}: ${esc(s.gongmang || '-')}</p>
-      <p class="kv">${t.nayin} ${esc(s.nayin.day)}</p>
+    <div class="sec grid2">
+      <div class="card">
+        <p class="h-eye">${t.ohaeng}</p>
+        ${ohaengBars(s.ohaeng)}
+        <p class="kv">${t.strong} <b>${esc(s.ohaeng.dominant)}</b> · ${t.weak} <b>${esc(s.ohaeng.weakest)}</b></p>
+      </div>
+      <div class="card">
+        <p class="h-eye">${t.sinsalHead}</p>
+        <div class="chips">${sinsal || `<span class="chip" style="color:#93826a;border-color:#ddd;background:#f3f0e8">${t.noSinsal}</span>`}</div>
+        <p class="kv">${t.gongmang}: ${esc(s.gongmang || '-')}</p>
+        <p class="kv">${t.nayin} ${esc(s.nayin.day)}</p>
+      </div>
     </div>
-  </div>
-
-  <div class="sec card">
-    <p class="h-eye">${t.daeun}</p>
-    <div class="duwrap">${daeunStrip(s, lang)}</div>
-    ${s.currentDaeun ? `<p class="kv">${t.now} ${esc(String(s.input.age))}${t.nowMid} <b>${esc(en(lang) ? s.currentDaeun.hanja : s.currentDaeun.han)}</b> · <b>${esc(en(lang) ? (SS_EN[s.currentDaeun.shishen] || s.currentDaeun.shishen) : s.currentDaeun.shishen)}</b>${t.nowEnd}</p>` : ''}
-  </div>
-
-  <div class="reading">
+    <div class="sec card">
+      <p class="h-eye">${t.daeun}</p>
+      <div class="duwrap">${daeunStrip(s, lang)}</div>
+      ${s.currentDaeun ? `<p class="kv">${t.now} ${esc(String(s.input.age))}${t.nowMid} <b>${esc(en(lang) ? s.currentDaeun.hanja : s.currentDaeun.han)}</b> · <b>${esc(en(lang) ? (SS_EN[s.currentDaeun.shishen] || s.currentDaeun.shishen) : s.currentDaeun.shishen)}</b>${t.nowEnd}</p>` : ''}
+    </div>
     ${question ? `<div class="ask">${t.ask} “${esc(question)}”</div>` : ''}
-    ${readingHtml(readingText)}
   </div>
 
-  <div class="foot">
-    ${t.foot1}<br/>
-    ${t.foot2}<br/>
-    © ${new Date().getFullYear()} ${lang === 'en' ? 'Joseon Saju' : '조선사주'}
+  <div class="reading pad">
+    ${body}
+    <div class="foot">
+      ${t.foot1}<br/>${t.foot2}<br/>© ${new Date().getFullYear()} ${lang === 'en' ? 'Joseon Saju' : '조선사주'}
+    </div>
   </div>
 </body></html>`;
 }
@@ -216,7 +268,13 @@ async function renderPdf(saju, readingText, question, lang) {
     const page = await browser.newPage();
     await page.setContent(buildHtml(saju, readingText, question, lang), { waitUntil: 'load' });
     await page.evaluate(() => document.fonts && document.fonts.ready);
-    const buf = await page.pdf({ format: 'A4', printBackground: true });
+    const brand = lang === 'en' ? 'Joseon Saju' : '조선사주';
+    const buf = await page.pdf({
+      format: 'A4', printBackground: true, displayHeaderFooter: true,
+      headerTemplate: '<span></span>',
+      footerTemplate: `<div style="width:100%;font-size:8px;color:#a99a7a;text-align:center;font-family:serif;padding-top:2mm;">${brand} &middot; <span class="pageNumber"></span> / <span class="totalPages"></span></div>`,
+      margin: { top: '6mm', bottom: '12mm', left: '0mm', right: '0mm' },
+    });
     return buf;
   } catch (e) {
     console.warn('[pdf] 렌더 실패:', e.message);
