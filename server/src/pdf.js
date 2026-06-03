@@ -30,6 +30,12 @@ const SS_EN = { 비견: 'Companion', 겁재: 'Rival', 식신: 'Output', 상관: 
 const DI_EN = { 장생: 'Growth', 목욕: 'Bath', 관대: 'Cap', 건록: 'Officer', 제왕: 'Peak', 쇠: 'Decline', 병: 'Sickness', 사: 'Death', 묘: 'Tomb', 절: 'Severance', 태: 'Womb', 양: 'Nurture' };
 const en = (x) => x === 'en';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+// 뜻풀이: '용어 — 설명' 에서 용어를 굵게
+function defHtml(s) {
+  const m = /^(.+?)\s—\s([\s\S]+)$/.exec(String(s));
+  if (m) return `<b>${esc(m[1])}</b> — ${esc(m[2])}`;
+  return esc(s);
+}
 
 function pillarCol(label, p, lang) {
   if (!p) return `<td class="mx"><div class="lbl">${label}</div><div class="gan" style="color:#999">·</div><div class="ji" style="color:#999">·</div><div class="sub">${en(lang) ? 'unknown' : '모름'}</div><div class="sub"></div><div class="sub"></div></td>`;
@@ -78,6 +84,8 @@ function renderReading(text, lang) {
       const title = t.replace(/^○\s*/, '');
       toc += `<div class="toc-sec">${esc(title)}</div>`;
       body += `<h2 class="rh">${esc(title)}</h2>`;
+    } else if (/^▷\s/.test(t)) {
+      body += `<p class="rdef">${defHtml(t.replace(/^▷\s*/, ''))}</p>`;
     } else {
       body += `<p class="rp">${esc(t)}</p>`;
     }
@@ -158,9 +166,12 @@ function buildHtml(saju, readingText, question, lang) {
   .dus { font-size:10px; color:#5a4c3b; }
   /* 본문 */
   .reading { margin-top:18px; }
-  h2.rh { font-size:18px; font-weight:800; color:#16263f; margin:0 0 12px; padding:0 0 7px; border-bottom:1.5px solid #b8362a; page-break-before:always; page-break-after:avoid; }
+  h2.rh { font-size:17px; font-weight:800; color:#16263f; margin:20px 0 10px; padding:0 0 6px; border-bottom:1.5px solid #b8362a; page-break-after:avoid; }
+  h2.rh:first-child { margin-top:4px; }
   h2.rh::before { content:"❖ "; color:#b8362a; }
-  p.rp { font-size:14px; line-height:2.05; margin:0 0 11px; text-align:justify; }
+  p.rp { font-size:14.5px; line-height:2.2; margin:0 0 14px; text-align:justify; }
+  p.rdef { font-size:13.5px; line-height:1.95; margin:0 0 14px; padding:13px 16px; background:#f3ead4; border-left:4px solid #b8362a; border-radius:0 5px 5px 0; color:#3a2f22; }
+  p.rdef b { color:#16263f; }
 
   /* 표지 */
   .cover-page { height:270mm; page-break-after:always; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
@@ -183,13 +194,14 @@ function buildHtml(saju, readingText, question, lang) {
   .toc-sec { font-size:12.5px;color:#5a4c3b;margin:3px 0 3px 14px; }
   .toc-sec::before { content:"· "; color:#b8362a; }
 
-  /* 장 배너 (인라인) */
-  .chap-divider { page-break-before:always; text-align:center; margin:0 0 4px; padding:10mm 0 6mm; border-top:2px solid #16263f; border-bottom:1px solid #c9b27f; }
-  .chap-kicker { color:#b8362a; letter-spacing:6px; font-size:11px; margin-bottom:8px; }
-  .chap-title { font-size:24px; font-weight:800; color:#16263f; letter-spacing:3px; margin:0 0 8px; }
-  .chap-sub { font-size:12px; color:#8a7d6c; margin:0 0 10px; }
-  .chap-seal { width:36px;height:36px;display:inline-grid;place-items:center;background:#b8362a;color:#fff;font-weight:800;border-radius:6px;font-size:15px; }
-  .chap-divider + h2.rh { page-break-before:avoid; }
+  /* 장(章) 표지 — 전면 한 페이지 */
+  .chap-divider { page-break-before:always; page-break-after:always; height:248mm; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; }
+  .chap-divider::before { content:""; position:absolute; left:50%; top:74mm; transform:translateX(-50%); width:46px; height:2px; background:#c9a64a; }
+  .chap-divider::after { content:""; position:absolute; left:50%; bottom:74mm; transform:translateX(-50%); width:46px; height:2px; background:#c9a64a; }
+  .chap-kicker { color:#b8362a; letter-spacing:8px; font-size:13px; margin-bottom:16px; }
+  .chap-title { font-size:30px; font-weight:800; color:#16263f; letter-spacing:4px; margin:0 0 14px; }
+  .chap-sub { font-size:13.5px; color:#8a7d6c; margin:0 0 26px; }
+  .chap-seal { width:46px;height:46px;display:inline-grid;place-items:center;background:#b8362a;color:#fff;font-weight:800;border-radius:7px;font-size:19px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35); }
   .chart-page { page-break-after:always; }
   .ask { font-size:12px; color:#5a4c3b; background:#fbeeeb; border:1px solid #e7c3bb; border-radius:6px; padding:10px 12px; margin-top:10px; }
   .foot { margin-top:22px; padding-top:12px; border-top:1px solid #d8c39a; font-size:10.5px; color:#93826a; line-height:1.6; text-align:center; }
