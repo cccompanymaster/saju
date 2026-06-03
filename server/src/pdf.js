@@ -141,8 +141,9 @@ function buildHtml(saju, readingText, question, lang) {
   .dus { font-size:10px; color:#5a4c3b; }
   /* 본문 */
   .reading { margin-top:18px; }
-  h2.rh { font-size:16px; font-weight:800; color:#16263f; margin:18px 0 6px; padding-bottom:5px; border-bottom:1px solid #d8c39a; page-break-after:avoid; }
-  p.rp { font-size:13.5px; line-height:1.95; margin:0 0 8px; text-align:justify; }
+  h2.rh { font-size:19px; font-weight:800; color:#16263f; margin:0 0 14px; padding:0 0 8px; border-bottom:2px solid #b8362a; page-break-before:always; page-break-after:avoid; }
+  h2.rh::before { content:"❖ "; color:#b8362a; }
+  p.rp { font-size:14px; line-height:2.15; margin:0 0 12px; text-align:justify; }
   .ask { font-size:12px; color:#5a4c3b; background:#fbeeeb; border:1px solid #e7c3bb; border-radius:6px; padding:10px 12px; margin-top:10px; }
   .foot { margin-top:22px; padding-top:12px; border-top:1px solid #d8c39a; font-size:10.5px; color:#93826a; line-height:1.6; text-align:center; }
   .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }

@@ -30,5 +30,8 @@
   },
   "optionalDependencies": {
     "playwright": "1.56.1"
+  },
+  "devDependencies": {
+    "pdf-lib": "^1.17.1"
   }
 }
