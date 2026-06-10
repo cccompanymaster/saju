@@ -71,7 +71,7 @@ const CHEONEUL = { // 천을귀인 (일간 기준)
   丙:['亥','酉'], 丁:['亥','酉'], 壬:['巳','卯'], 癸:['巳','卯'], 辛:['午','寅'],
 };
 
-function computeSinsal(branches, dayGanHanja, dayZhi, yearZhi) {
+function computeSinsal(branches, dayGanHanja, dayZhi, yearZhi, dayGanzhi) {
   const found = [];
   const baseKey = samhapKey(dayZhi) || samhapKey(yearZhi);
   const has = (ji) => branches.includes(ji);
@@ -82,6 +82,13 @@ function computeSinsal(branches, dayGanHanja, dayZhi, yearZhi) {
   }
   const ce = CHEONEUL[dayGanHanja] || [];
   if (ce.some(has)) found.push({ name: '천을귀인', mean: '귀인의 도움·위기에서 길이 열림' });
+  // 특수 일주: 괴강·백호 (일주 간지 기준)
+  if (['庚辰', '庚戌', '壬辰', '戊戌'].includes(dayGanzhi)) {
+    found.push({ name: '괴강살', mean: '강한 카리스마·결단·우두머리 기질(일주)' });
+  }
+  if (['甲辰', '乙未', '丙戌', '丁丑', '戊辰', '壬戌', '癸丑'].includes(dayGanzhi)) {
+    found.push({ name: '백호살', mean: '강렬한 집중력·승부 기질, 안전과 과로 주의(일주)' });
+  }
   return found;
 }
 
@@ -249,7 +256,7 @@ function computeSaju(input) {
   // 신살
   const branches = [ec.getYearZhi(), ec.getMonthZhi(), ec.getDayZhi()];
   if (!unknownTime) branches.push(ec.getTimeZhi());
-  const sinsal = computeSinsal(branches, dayGanHanja, ec.getDayZhi(), ec.getYearZhi());
+  const sinsal = computeSinsal(branches, dayGanHanja, ec.getDayZhi(), ec.getYearZhi(), ec.getDay());
 
   // 대운
   const yun = ec.getYun(gender === 'M' ? 1 : 0);

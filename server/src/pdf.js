@@ -184,14 +184,26 @@ function buildHtml(saju, readingText, question, lang) {
   .cv-line { width:42px;height:2px;background:#c9a64a;margin:0 auto 30px; }
   .cv-who { font-size:20px;color:#f3ead4;margin:0 0 6px; }
   .cv-meta { font-size:12px;color:rgba(243,234,212,.7);margin:3px 0; }
-  .cv-foot { position:absolute; bottom:18mm; left:0; right:0; font-size:11px; color:rgba(243,234,212,.55); letter-spacing:2px; }
+  .cv-foot { position:absolute; bottom:18mm; left:0; right:0; font-size:11px; color:rgba(243,234,212,.55); letter-spacing:2px; z-index:2; }
+  /* 표지 장식: 보름달·산 능선·구름 */
+  .cv-art { position:absolute; inset:12mm; overflow:hidden; border-radius:3px; pointer-events:none; }
+  .cv-moon { position:absolute; top:34mm; right:30mm; width:30mm; height:30mm; border-radius:50%;
+    background:radial-gradient(circle at 38% 36%, #f7e9b8, #e3c56e 62%, #c9a64a);
+    box-shadow:0 0 26mm 6mm rgba(201,166,74,.22); opacity:.95; }
+  .cv-cloud { position:absolute; height:2.2mm; border-radius:2mm; background:rgba(201,166,74,.28); }
+  .cv-cloud.c1 { top:46mm; right:20mm; width:34mm; }
+  .cv-cloud.c2 { top:50mm; right:28mm; width:22mm; opacity:.7; }
+  .cv-cloud.c3 { top:40mm; left:26mm; width:26mm; opacity:.5; }
+  .cv-mtn { position:absolute; bottom:-2mm; left:0; right:0; height:64mm; }
+  .cv-mtn svg { width:100%; height:100%; display:block; }
 
   /* 목차 */
   .toc-page { page-break-after:always; }
   .toc-h { font-size:24px;font-weight:800;color:#16263f;letter-spacing:4px;text-align:center;margin:6mm 0 2mm; }
   .toc-h-sub { text-align:center;color:#b8362a;letter-spacing:3px;font-size:12px;margin:0 0 8mm; }
-  .toc-chap { font-size:15px;font-weight:800;color:#16263f;margin:14px 0 4px;padding-bottom:4px;border-bottom:1px dotted #c9b27f; }
-  .toc-sec { font-size:12.5px;color:#5a4c3b;margin:3px 0 3px 14px; }
+  .toc-cols { column-count:2; column-gap:10mm; }
+  .toc-chap { font-size:14px;font-weight:800;color:#16263f;margin:12px 0 4px;padding-bottom:4px;border-bottom:1px dotted #c9b27f; break-inside:avoid; break-after:avoid; }
+  .toc-sec { font-size:11.5px;color:#5a4c3b;margin:3px 0 3px 12px; }
   .toc-sec::before { content:"· "; color:#b8362a; }
 
   /* 장(章) 표지 — 전면 한 페이지 */
@@ -209,20 +221,29 @@ function buildHtml(saju, readingText, question, lang) {
 </style></head><body>
 
   <div class="cover-page">
-    <div class="cv-seal">四</div>
-    <div class="cv-title">${lang === 'en' ? 'JOSEON SAJU' : '조선사주'}</div>
-    <div class="cv-sub">${t.cover_sub}</div>
-    <div class="cv-line"></div>
-    <div class="cv-who">${esc(s.input.name)}${t.booklet}</div>
-    <div class="cv-meta">${esc(s.solar)} · ${esc(s.lunar)} · ${esc(s.zodiac)} · ${esc(t.gender[s.input.gender] || '-')}</div>
-    <div class="cv-meta">${t.issued} ${esc(today)}</div>
+    <div class="cv-art">
+      <div class="cv-moon"></div>
+      <div class="cv-cloud c1"></div><div class="cv-cloud c2"></div><div class="cv-cloud c3"></div>
+      <div class="cv-mtn"><svg viewBox="0 0 800 240" preserveAspectRatio="none">
+        <path d="M0,240 L0,150 Q90,70 170,128 Q230,170 300,120 Q380,60 460,130 Q530,186 620,110 Q700,46 800,140 L800,240 Z" fill="rgba(201,166,74,0.10)"/>
+        <path d="M0,240 L0,185 Q120,120 220,168 Q320,212 420,160 Q520,108 640,170 Q720,210 800,178 L800,240 Z" fill="rgba(201,166,74,0.16)"/>
+        <path d="M0,240 L0,212 Q160,170 320,205 Q480,238 640,200 Q730,180 800,206 L800,240 Z" fill="rgba(13,26,46,0.85)" stroke="rgba(201,166,74,0.35)" stroke-width="1.5"/>
+      </svg></div>
+    </div>
+    <div class="cv-seal" style="position:relative;z-index:2">四</div>
+    <div class="cv-title" style="position:relative;z-index:2">${lang === 'en' ? 'JOSEON SAJU' : '조선사주'}</div>
+    <div class="cv-sub" style="position:relative;z-index:2">${t.cover_sub}</div>
+    <div class="cv-line" style="position:relative;z-index:2"></div>
+    <div class="cv-who" style="position:relative;z-index:2">${esc(s.input.name)}${t.booklet}</div>
+    <div class="cv-meta" style="position:relative;z-index:2">${esc(s.solar)} · ${esc(s.lunar)} · ${esc(s.zodiac)} · ${esc(t.gender[s.input.gender] || '-')}</div>
+    <div class="cv-meta" style="position:relative;z-index:2">${t.issued} ${esc(today)}</div>
     <div class="cv-foot">${lang === 'en' ? 'based on the patent-pending reading structure of Maja-saem Kim Kyung-hee' : '마자샘 김경희 특허출원 리딩 구조 기반'}</div>
   </div>
 
   <div class="toc-page pad">
     <div class="toc-h">${lang === 'en' ? 'Contents' : '목 차'}</div>
     <div class="toc-h-sub">${t.cover_sub}</div>
-    ${toc}
+    <div class="toc-cols">${toc}</div>
   </div>
 
   <div class="chart-page pad">

@@ -109,37 +109,81 @@ function birthKey(b) {
     b.gender, b.trueSolarTime ? 't' + (b.birthLongitude || b.birthPlace || '') : 's'].join('|');
 }
 
-/* ── 주문 대장(결제 멱등성·재처리 방지) ── */
-function makeOrderStore({ ttlMs = 24 * 3600 * 1000 } = {}) {
-  const map = new Map(); // orderId → { status, amount, at }
+/* ── 파일 영속 헬퍼 ──
+ * 서버 재시작에도 2주 재열람·결제 멱등성 약속을 지키기 위한 단순 JSON 영속화.
+ * 단일 인스턴스 가정. 다중 인스턴스/대용량은 Redis·DB로 교체.
+ */
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+
+function filePersist(file) {
+  if (!file) return { load: () => null, save: () => {} };
+  let timer = null, pending = null;
   return {
-    get(id) { return map.get(id); },
-    isConfirmed(id) { const r = map.get(id); return !!r && r.status === 'confirmed'; },
-    confirm(id, amount) { map.set(id, { status: 'confirmed', amount, at: Date.now() }); },
-    sweep() { const now = Date.now(); for (const [k, v] of map) if (now - v.at > ttlMs) map.delete(k); },
+    load() {
+      try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (_) { return null; }
+    },
+    save(obj) {
+      pending = obj;
+      if (timer) return; // 1초 디바운스 — 잦은 쓰기 묶음
+      timer = setTimeout(() => {
+        timer = null;
+        try {
+          fs.mkdirSync(path.dirname(file), { recursive: true });
+          const tmp = file + '.tmp';
+          fs.writeFileSync(tmp, JSON.stringify(pending));
+          fs.renameSync(tmp, file); // 원자적 교체
+        } catch (e) { console.warn('[persist] 저장 실패:', e.message); }
+      }, 1000);
+      timer.unref?.();
+    },
   };
 }
 
-/* ── 결과 저장소(재열람: 발송일로부터 2주) ──
- * 인메모리 + 14일 TTL. 토큰으로만 접근. 다중 인스턴스/영속이 필요하면 DB로 교체.
- */
-const crypto = require('crypto');
-function makeResultStore({ ttlMs = 14 * 24 * 3600 * 1000, max = 5000 } = {}) {
-  const map = new Map(); // token → { data, exp }
+/* ── 주문 대장(결제 멱등성·재처리 방지) — 파일 영속 ── */
+function makeOrderStore({ ttlMs = 24 * 3600 * 1000, file } = {}) {
+  const p = filePersist(file);
+  const map = new Map(Object.entries(p.load() || {})); // orderId → { status, amount, at }
+  const flush = () => p.save(Object.fromEntries(map));
+  return {
+    get(id) { return map.get(id); },
+    isConfirmed(id) { const r = map.get(id); return !!r && r.status === 'confirmed'; },
+    confirm(id, amount) { map.set(id, { status: 'confirmed', amount, at: Date.now() }); flush(); },
+    sweep() {
+      const now = Date.now(); let changed = false;
+      for (const [k, v] of map) if (now - v.at > ttlMs) { map.delete(k); changed = true; }
+      if (changed) flush();
+    },
+  };
+}
+
+/* ── 결과 저장소(재열람: 발송일로부터 2주) — 파일 영속 ── */
+function makeResultStore({ ttlMs = 14 * 24 * 3600 * 1000, max = 5000, file } = {}) {
+  const p = filePersist(file);
+  const map = new Map(Object.entries(p.load() || {})); // token → { data, exp }
+  // 부팅 시 만료분 정리
+  { const now = Date.now(); for (const [k, v] of map) if (!v || v.exp < now) map.delete(k); }
+  const flush = () => p.save(Object.fromEntries(map));
   return {
     save(data) {
       const token = crypto.randomBytes(18).toString('base64url');
       map.set(token, { data, exp: Date.now() + ttlMs });
       if (map.size > max) map.delete(map.keys().next().value);
+      flush();
       return token;
     },
     get(token) {
       const r = map.get(token);
       if (!r) return null;
-      if (r.exp < Date.now()) { map.delete(token); return null; }
+      if (r.exp < Date.now()) { map.delete(token); flush(); return null; }
       return r.data;
     },
-    sweep() { const now = Date.now(); for (const [k, v] of map) if (v.exp < now) map.delete(k); },
+    sweep() {
+      const now = Date.now(); let changed = false;
+      for (const [k, v] of map) if (v.exp < now) { map.delete(k); changed = true; }
+      if (changed) flush();
+    },
   };
 }
 

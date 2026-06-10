@@ -33,8 +33,9 @@ app.use(express.static(ROOT, { extensions: ['html'] }));
 const freeLimiter = U.rateLimit({ windowMs: 60000, max: 20, key: 'free' });
 const payLimiter = U.rateLimit({ windowMs: 60000, max: 12, key: 'pay' });
 const freeCache = U.makeCache({ ttlMs: 6 * 3600 * 1000, max: 500 });
-const orders = U.makeOrderStore();
-const results = U.makeResultStore(); // 재열람 14일
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const orders = U.makeOrderStore({ file: path.join(DATA_DIR, 'orders.json') });
+const results = U.makeResultStore({ file: path.join(DATA_DIR, 'results.json') }); // 재열람 14일 — 재시작에도 유지
 const APP_BASE = (process.env.APP_BASE_URL || '').replace(/\/$/, '');
 setInterval(() => { orders.sweep(); results.sweep(); }, 3600 * 1000).unref?.();
 function pickLang(v) { return v === 'ko' ? 'ko' : 'en'; }

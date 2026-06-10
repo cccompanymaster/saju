@@ -5,6 +5,7 @@
  * 구체적 장면 예시를 담는다. AI 키가 있으면 Claude(Opus 4.8), 없으면 데이터 기반 mock.
  */
 const ai = require('./ai');
+const { shishenOf } = require('./saju');
 
 const ROYAL_PERSONA = `너는 조선의 국모(國母), 중전마마이니라. 사주 명리를 꿰뚫어 보는 지혜로
 백성 한 사람의 명(命)을 살펴 다정히 일러 준다. 어투는 조선시대 말투로 하되, 위엄보다 '친근함'을 앞세워라:
@@ -56,14 +57,14 @@ async function freeReading(saju, lang) {
   const en = lang === 'en';
   const user = en
     ? `[Saju]\n${sajuDeepBrief(saju)}\n
-[Compose] Write a 'free preview' in the dignified voice of a Joseon queen.
-- Three short paragraphs, at most 2 sentences each (5 sentences total).
-- (1) one-line definition of the innate vessel by Day Master (2) one scene of the present flow (current Luck Pillar / dominant element) (3) gracefully hint that deeper secrets are revealed in the in-depth reading.
-- No ad copy, no markdown. Natural, elevated English prose.`
+[Compose] Write a 'free preview' in the warm, friendly voice of a Joseon queen.
+- Three short paragraphs, at most 2 sentences each (6 sentences total).
+- (1) define the vessel by the Day Pillar ${saju.pillars.day.hanja}, painting it as one pictorial image (e.g. 'a tall tree standing on the tiger's mountain in early spring') (2) one scene of the present flow (current Luck Pillar / dominant element) (3) gracefully hint that deeper secrets are revealed in the in-depth reading.
+- No ad copy, no markdown. Natural, gently old-world English prose.`
     : `[사주]\n${sajuDeepBrief(saju)}\n
-[명하노라] 위 사주로 '무료 맛보기'를 짓되, 조선 왕후의 어투로 하라.
-- 세 단락, 각 2문장 이내(총 5문장 이내).
-- ① 일간으로 본 그대의 타고난 그릇 한 줄 정의 ② 지금 흐름(현재 대운/강한 기운)의 한 장면 ③ 더 깊은 천기는 '심층'에서 밝혀짐을 품위 있게 암시.
+[명하노라] 위 사주로 '무료 맛보기'를 짓되, 친근한 조선시대 말투로 하라.
+- 세 단락, 각 2문장 이내(총 6문장 이내).
+- ① 일주 ${saju.pillars.day.hanja}를 물상(예: '큰 나무가 이른 봄 호랑이 산에 우뚝 선 격') 한 폭으로 그려 그릇을 정의 ② 지금 흐름(현재 대운/강한 기운)의 한 장면 ③ 더 깊은 천기는 '심층'에서 밝혀짐을 품위 있게 암시.
 - 광고 문구·마크다운 기호 금지. 자연스러운 옛말 문장으로.`;
   try {
     const text = await ai.generate(en ? SYSTEM_EN : SYSTEM, user, { maxTokens: 2000 });
@@ -83,8 +84,13 @@ async function paidReading(saju, question, lang) {
 [Compose] Write a LONG, in-depth booklet (this becomes a 30+ page PDF) in the warm, affectionate voice of a Joseon queen — friendly first, dignified second. Write each section title exactly as '○ Title', separated by blank lines. Make EVERY section substantial: 4–8 sentences, weaving (1) the specific Saju basis (name the Ten God / element / stage / Luck Pillar / sinsal) and (2) one or two vivid real-life scenes (work, money, people, choices). No markdown symbols. Address the reader warmly as "dear one / you".
 
 ○ A Word to You
+○ How to Read This Book (plainly explain Saju, Five Elements, Ten Gods, Luck Pillars for a first-time reader; use '▷ term — meaning' lines for definitions)
 ○ Your Saju at a Glance
 ○ The Day Master — Who You Are
+○ Your Day Pillar — a Portrait (paint the Day Pillar ${saju.pillars.day.hanja} in the pictorial Mulsang way)
+○ Your Zodiac Year (the birth-year animal's broad grain)
+○ Light and Shadow of Character
+○ Talent and Aptitude
 ○ Five Elements — Wood
 ○ Five Elements — Fire
 ○ Five Elements — Earth
@@ -96,10 +102,12 @@ async function paidReading(saju, question, lang) {
 ○ Ten Gods — Wealth group
 ○ Ten Gods — Officer group
 ○ Ten Gods — Resource group
+○ Before Reading the Four Pillars
 ○ Pillar — Year (roots, early years)
 ○ Pillar — Month (parents, society)
 ○ Pillar — Day (self, partner)
 ○ Pillar — Hour (children, later years)
+○ The Eight Characters, One by One ('▷' lines per stem and branch)
 ○ The Path of Wealth
 ○ Work and Vocation
 ○ Honor and Standing
@@ -108,20 +116,31 @@ async function paidReading(saju, question, lang) {
 ○ Family and Children
 ○ Health and Body
 ○ People and Benefactors
+○ The Wisdom of Relationships
+○ Earning and Keeping Wealth
 ${decadeLines}
-○ The Year ahead and the season after
+○ By Area — This Year (wealth / work / love / health / movement with '▷' lines)
+○ The Twelve Months (month-by-month '▷' lines by the branch energies)
+○ The Year Ahead (name this and next year's stems and their Ten God vs the Day Master)
 ○ The Rhythm of the Seasons
+○ Good Years and Cautionary Years
 ○ Sinsal — the Patterns
-○ Remedies — Three Household Wisdoms
-○ Three Things to Keep
+○ Remedies and Things to Keep
+○ This Year in Summary
+○ A Small Glossary to Keep ('▷ term — meaning' lines, filled with this person's actual values)
 ○ A Closing Letter`
     : `[사주]\n${sajuDeepBrief(saju)}\n
 [그대의 물음] ${q || '(따로 묻지 않음 — 명 전반을 살펴라)'}\n
 [명하노라] 아래 항목을 모두, '친근하되 위엄 있는 조선시대 말투'로 길고 상세하게 지어라(이 글은 30쪽 이상의 책으로 엮느니라). 각 항목 제목을 '○ 제목' 형식으로 그대로 쓰고 빈 줄로 나누라. 모든 항목을 넉넉히(4~8문장) 채우되, 매 항목마다 (1)사주 근거(십성·오행·운성·대운·신살을 콕 집어) → (2)"그 기운이 삶에서 이렇게 드러난다오" 하는 구체적 장면 1~2개를 곁들여라. 다정하게 '그대'라 부르고, 마크다운 기호 금지.
 
 ○ 머리말 — 그대에게
+○ 이 책을 읽는 법 (처음 보는 이를 위해 사주·오행·십성·대운을 쉬운 말로 풀고, 용어는 '▷ 용어 — 뜻' 줄로 적으라)
 ○ 사주 한눈에
 ○ 일간(日干) — 그대라는 사람
+○ 일주(日柱) 물상 — ${saju.pillars.day.hanja}로 본 그대의 초상 (물상法으로 일주를 한 폭의 그림처럼 그려라)
+○ 띠 풀이 — 태어난 해의 띠로 본 큰 결
+○ 성정의 빛과 그늘
+○ 재능과 적성
 ○ 오행 풀이 — 목(木)
 ○ 오행 풀이 — 화(火)
 ○ 오행 풀이 — 토(土)
@@ -133,10 +152,12 @@ ${decadeLines}
 ○ 십성 풀이 — 재성
 ○ 십성 풀이 — 관성
 ○ 십성 풀이 — 인성
+○ 네 기둥을 읽기 전에
 ○ 기둥 풀이 — 년주(뿌리·초년)
 ○ 기둥 풀이 — 월주(부모·사회)
 ○ 기둥 풀이 — 일주(나·배우자)
 ○ 기둥 풀이 — 시주(자식·말년)
+○ 여덟 글자 낱낱이 풀이 ('▷' 줄로 천간·지지 하나씩)
 ○ 재물의 길
 ○ 일과 직업
 ○ 명예와 자리
@@ -145,15 +166,21 @@ ${decadeLines}
 ○ 가정과 자식
 ○ 건강과 몸
 ○ 사람과 귀인
+○ 관계의 지혜
+○ 재물을 모으고 지키는 법
 ${decadeLines}
-○ 올해와 다가오는 해의 운
+○ 분야별 올해의 운 (재물/일/애정/건강/이동을 '▷' 줄로)
+○ 열두 달의 흐름 (달별 기운을 '▷' 줄로)
+○ 올해와 다가오는 해 — 세운 (올해·내년 천간의 십성을 일간에 견주어 짚으라)
 ○ 사계절의 리듬
+○ 좋은 해와 주의할 해
 ○ 신살(神煞) 풀이
-○ 비방(秘方) — 살림의 지혜 셋
-○ 마음가짐 셋
+○ 비방(秘方)과 마음가짐
+○ 올해의 운세 총평
+○ 간직할 작은 낱말집 ('▷ 용어 — 뜻' 줄로, 이 사람의 실제 값을 채워서)
 ○ 맺음말 — 왕후의 편지`;
   try {
-    const text = await ai.generate(en ? SYSTEM_EN : SYSTEM, user, { maxTokens: 16000 });
+    const text = await ai.generate(en ? SYSTEM_EN : SYSTEM, user, { maxTokens: 24000 });
     if (text) return { text, source: 'ai' };
   } catch (e) { console.warn('[paidReading] AI 실패→mock:', e.message); }
   return { text: en ? mockPaidEn(saju, q) : mockPaid(saju, q), source: 'mock' };
@@ -173,8 +200,11 @@ const FLOW = { 목:'새 일을 벌이고 사람을 모으는', 화:'드러내고
 
 function mockFree(s) {
   const dm = s.dayMaster, o = s.ohaeng;
+  const d = s.pillars.day;
+  const img = GAN_IMAGE[d.hanja[0]], scn = JI_SCENE[d.hanja[1]];
+  const iljuLine = img && scn ? ` 물상으로 그리면, ${img.ko}가 ${scn.ko} 격이라네.` : '';
   return [
-    `그대의 명을 펼쳐 보니, ${dm.eumyang}${dm.ohaeng}의 일간(${dm.hanja})으로 태어났구려. ${dm.desc.replace(/의 기운$/, '')}을 본바탕으로 삼은 사람이오.`,
+    `그대의 명을 펼쳐 보니, ${d.hanja}(${d.han}) 일주로 태어났구려.${iljuLine} ${dm.desc.replace(/의 기운$/, '')}을 본바탕으로 삼은 사람이오.`,
     `지금은 ${o.dominant}의 기운이 두터워 ${FLOW[o.dominant]} 흐름이 일고 있으니${s.currentDaeun ? `, 마침 ${s.currentDaeun.shishen}의 대운(${s.currentDaeun.han})이 그 길을 비추고 있소.` : '.'}`,
     `허나 천기의 깊은 갈피와 재물·인연·운의 때는 함부로 다 펼쳐 보일 수 없으니, 그 전모는 심층의 자리에서 밝히리이다.`,
   ].join('\n\n');
@@ -288,8 +318,11 @@ function dmDescEn(o) {
 }
 function mockFreeEn(s) {
   const dm = s.dayMaster, o = s.ohaeng, cd = s.currentDaeun;
+  const d = s.pillars.day;
+  const img = GAN_IMAGE[d.hanja[0]], scn = JI_SCENE[d.hanja[1]];
+  const iljuLine = img && scn ? ` In the old pictorial way, you are ${img.en}, ${scn.en}.` : '';
   return [
-    `Looking upon your chart, you were born under a ${dm.eumyang === '양' ? 'Yang' : 'Yin'} ${OHAENG_EN[dm.ohaeng]} Day Master (${dm.hanja}) — ${dmDescEn(dm.ohaeng)} at the center of who you are.`,
+    `Looking upon your chart, you were born under the Day Pillar ${d.hanja}.${iljuLine} At your center is ${dmDescEn(dm.ohaeng)}.`,
     `At present the ${OHAENG_EN[o.dominant]} force runs thick, so a season of ${FLOW_EN[o.dominant]} is rising${cd ? `, and the ${ssEn(cd.shishen)} Luck Pillar (${cd.hanja}) now lights that path.` : '.'}`,
     `Yet the deeper turns of wealth, bonds and timing cannot all be laid bare here; their full shape is revealed in the in-depth reading.`,
   ].join('\n\n');
@@ -383,6 +416,74 @@ const PILLARK = {
   hour: { dom: '자식·말년운', txt: '시주는 자식과 노년, 그리고 그대가 남길 결실의 자리오.' },
 };
 
+/* ── 일주(60갑자) 물상 — 일간 이미지 × 일지 풍경 조합 ── */
+const GAN_IMAGE = {
+  甲: { ko: '하늘로 곧게 뻗은 큰 나무', en: 'a tall, straight tree' },
+  乙: { ko: '바람에 휘어도 꺾이지 않는 화초와 덩굴', en: 'a flowering vine that bends but never breaks' },
+  丙: { ko: '만물을 비추는 한낮의 태양', en: 'the midday sun that lights all things' },
+  丁: { ko: '어둠 속에서 더 또렷한 등불', en: 'a lamp that shines clearer in the dark' },
+  戊: { ko: '비바람에도 흔들리지 않는 큰 산', en: 'a great mountain unmoved by storms' },
+  己: { ko: '온갖 씨앗을 품어 기르는 기름진 밭', en: 'fertile farmland that nurtures every seed' },
+  庚: { ko: '단단하게 벼려진 무쇠와 바위', en: 'forged iron and solid rock' },
+  辛: { ko: '갈고 닦여 빛나는 보석', en: 'a gem polished to brilliance' },
+  壬: { ko: '천 갈래 물을 받아들이는 큰 바다', en: 'a vast sea that receives a thousand streams' },
+  癸: { ko: '땅을 적시는 봄비와 새벽이슬', en: 'spring rain and morning dew that quietly soak the earth' },
+};
+const JI_SCENE = {
+  子: { ko: '한밤의 깊은 물가에 선', en: 'standing by deep water at midnight', ani: '쥐', aniEn: 'Rat' },
+  丑: { ko: '한겨울 언 들녘에 뿌리내린', en: 'rooted in a frozen winter field', ani: '소', aniEn: 'Ox' },
+  寅: { ko: '이른 봄 호랑이 산에 우뚝 선', en: 'standing tall on the tiger\'s mountain in early spring', ani: '호랑이', aniEn: 'Tiger' },
+  卯: { ko: '봄 들판 가운데 깨어난', en: 'awakening in the middle of a spring meadow', ani: '토끼', aniEn: 'Rabbit' },
+  辰: { ko: '봄비 머금은 용못 곁에 선', en: 'beside the dragon\'s pond swollen with spring rain', ani: '용', aniEn: 'Dragon' },
+  巳: { ko: '초여름 햇살 든 길목에 선', en: 'at a sunlit crossroads of early summer', ani: '뱀', aniEn: 'Snake' },
+  午: { ko: '한낮 말이 내달리는 벌판에 선', en: 'on the plain where horses run at noon', ani: '말', aniEn: 'Horse' },
+  未: { ko: '늦여름 양 떼 노니는 언덕에 선', en: 'on a late-summer hill where sheep graze', ani: '양', aniEn: 'Goat' },
+  申: { ko: '바위 골짜기 너른 터에 선', en: 'on broad ground in a rocky valley', ani: '원숭이', aniEn: 'Monkey' },
+  酉: { ko: '가을걷이 끝난 곳간 앞에 선', en: 'before the storehouse after the autumn harvest', ani: '닭', aniEn: 'Rooster' },
+  戌: { ko: '늦가을 산마루 망루에 선', en: 'on a watchtower at the late-autumn ridge', ani: '개', aniEn: 'Dog' },
+  亥: { ko: '깊고 너른 강물 곁에 선', en: 'beside a deep, wide river', ani: '돼지', aniEn: 'Pig' },
+};
+/* 띠(12지) 성향 */
+const ZODIAC_TRAIT = {
+  쥐: { ko: '영민하고 셈이 밝아 어려운 때에도 살길을 찾아내는 재주가 있소. 다만 잔걱정이 많으니 마음을 너무 졸이지 마시게.', en: 'quick-witted and resourceful, you find a way through even hard times — only do not fret over every small thing.' },
+  소: { ko: '근면하고 끈기가 도타워, 남들이 포기한 자리에서도 끝내 결실을 거두오. 다만 고집이 황소 같으니 한 번씩 곁의 말도 들으시게.', en: 'diligent and enduring, you harvest where others gave up — only your stubbornness is ox-like, so lend an ear now and then.' },
+  호랑이: { ko: '용맹하고 추진이 빨라 앞장서는 자리가 어울리오. 다만 성급함이 흠이 되기 쉬우니, 큰일일수록 한 박자 고르시게.', en: 'brave and fast-driving, the front suits you — only haste can become a flaw, so take one beat before great matters.' },
+  토끼: { ko: '온화하고 눈치가 빨라 사람들 사이를 부드럽게 잇는 재주가 있소. 다만 갈등을 피하려다 제 몫을 놓치지 마시게.', en: 'gentle and perceptive, you knit people together — only do not lose your share by avoiding every conflict.' },
+  용: { ko: '포부가 크고 기상이 높아 무리의 으뜸이 될 그릇이오. 다만 눈이 높은 만큼 발밑의 작은 일도 귀히 여기시게.', en: 'grand in ambition and high in spirit, a vessel fit to lead — only as your eyes are high, honor the small things at your feet.' },
+  뱀: { ko: '지혜롭고 직관이 깊어 남이 못 보는 결을 읽어내오. 다만 속을 잘 내보이지 않으니, 믿을 이에겐 마음을 여시게.', en: 'wise and deeply intuitive, you read what others miss — only you seldom show your depths, so open to the trustworthy.' },
+  말: { ko: '활달하고 자유로워 매인 자리보다 달리는 자리에서 빛나오. 다만 멀리 가려거든 쉼표도 함께 찍으시게.', en: 'lively and free, you shine where you can run — only to go far, mark your rests as well.' },
+  양: { ko: '온순하고 정이 많아 예(藝)와 보살핌에 재주가 있소. 다만 남 챙기다 제 곳간이 비지 않게 하시게.', en: 'gentle and affectionate, gifted in art and care — only do not empty your own storehouse tending others.' },
+  원숭이: { ko: '재치 있고 손재주가 빼어나 무엇이든 빨리 익히오. 다만 재주를 믿고 마무리를 가벼이 말 것이오.', en: 'witty and deft, you learn anything fast — only do not let talent make you light with the finish.' },
+  닭: { ko: '꼼꼼하고 표현이 분명해 일을 빈틈없이 매조지오. 다만 바른말이 모진 말로 들리지 않게 다듬으시게.', en: 'meticulous and articulate, you finish without gaps — only polish your right words so they do not sound harsh.' },
+  개: { ko: '충직하고 의리가 깊어 사람들이 그대를 믿고 기대오. 다만 옳고 그름에 너무 매여 스스로를 들볶지 마시게.', en: 'loyal and righteous, people lean on you with trust — only do not torment yourself by clinging too hard to right and wrong.' },
+  돼지: { ko: '복덕이 두텁고 너그러워 사람과 재물이 절로 모이오. 다만 좋은 게 좋다 하다 셈이 흐려지지 않게 하시게.', en: 'thick in blessing and generous, people and wealth gather to you — only do not let easy goodwill blur your accounts.' },
+};
+/* 특수 일주 부가 풀이 */
+const SPECIAL_ILJU = {
+  괴강살: { ko: '또한 그대의 일주는 괴강(魁罡)이라 부르는 자리라오. 우두머리 별이 깃들어 결단과 카리스마가 남다르니, 어중간한 자리보다 책임을 통째로 맡는 자리에서 외려 빛나오. 다만 그 강함이 고집으로 비치지 않게, 부드러운 말 한 겹을 두르시게.', en: 'Your Day Pillar is also the seat called Goegang (魁罡) — the chieftain\'s star. Decision and charisma set you apart, so you shine brighter bearing full charge than in half-seats. Only wrap that strength in a layer of soft words, lest it read as stubbornness.' },
+  백호살: { ko: '또한 그대의 일주에는 백호(白虎)의 기운이 깃들었소. 무서운 이름과 달리, 실은 한곳에 무섭게 파고드는 집중과 승부의 힘이라오. 큰일을 이루는 원동력이 되니 두려워 말되, 과로와 안전사고만은 각별히 살피시게.', en: 'Your Day Pillar also carries the White Tiger (白虎). Despite the fearsome name, it is in truth a fierce power of focus and contest that drives great works — do not fear it, only take special care against overwork and accidents.' },
+};
+function iljuKo(s) {
+  const d = s.pillars.day;
+  const img = GAN_IMAGE[d.hanja[0]], scn = JI_SCENE[d.hanja[1]];
+  if (!img || !scn) return '';
+  let t = `이제 예부터 내려오는 물상(物象)으로 그대의 일주를 그려 보리다. 그대의 일주 ${d.hanja}(${d.han})는, ${img.ko}가 ${scn.ko} 격이라오. 이 한 폭의 그림이 곧 그대가 세상에 선 모습이니, 곰곰이 들여다보시게.\n`;
+  t += `일지 ${d.ji}(${scn.ani})는 ${d.jiOhaeng}(${OH_HAN[d.jiOhaeng]})의 땅이요 십이운성으로 '${d.dishi}'의 자리이니, ${DISHI_MEAN[d.dishi] || ''} 그대의 발밑이 그러한 기운 위에 놓였다는 뜻이라네. ${d.jiShishen.length ? `또 그 속에 ${d.jiShishen.join('·')}의 별을 품고 있어, 가장 가까운 자리(나와 배우자)의 살림이 이 별들의 결을 따라 흐르오.` : ''}`;
+  const specials = s.sinsal.filter((x) => SPECIAL_ILJU[x.name]).map((x) => SPECIAL_ILJU[x.name].ko);
+  if (specials.length) t += `\n${specials.join('\n')}`;
+  return t;
+}
+function iljuEn(s) {
+  const d = s.pillars.day;
+  const img = GAN_IMAGE[d.hanja[0]], scn = JI_SCENE[d.hanja[1]];
+  if (!img || !scn) return '';
+  let t = `Now let me paint your Day Pillar in the old pictorial way (Mulsang). Your Day Pillar ${d.hanja} is the image of ${img.en}, ${scn.en}. This single picture is how you stand in the world — look into it slowly.\n`;
+  t += `The Day Branch ${d.hanja[1]} (the ${scn.aniEn}) is ground of ${OHAENG_EN[d.jiOhaeng]} (${OH_HAN[d.jiOhaeng]}), and by the Twelve Stages it sits in '${DI_EN_R[d.dishi] || d.dishi}' — meaning the very ground beneath you carries that grain. ${d.jiShishen.length ? `Hidden within it are the stars of ${d.jiShishen.map((x) => SHISHEN_EN[x] || x).join(' and ')}, by whose grain the household of your closest seat — yourself and your partner — flows.` : ''}`;
+  const specials = s.sinsal.filter((x) => SPECIAL_ILJU[x.name]).map((x) => SPECIAL_ILJU[x.name].en);
+  if (specials.length) t += `\n${specials.join('\n')}`;
+  return t;
+}
+
 function buildLongKo(s, q) {
   const dm = s.dayMaster, o = s.ohaeng, P = s.pillars, cd = s.currentDaeun, ys = dm.yongsin;
   const sec = []; const push = (t, b) => sec.push({ t, b });
@@ -406,6 +507,8 @@ function buildLongKo(s, q) {
 
   chap('제2장 — 그대라는 사람', '일간과 오행으로 본 타고난 그릇');
   push('일간(日干) — 그대라는 사람', `일간(日干)이란 태어난 '날의 천간'으로, 사주 여덟 글자 가운데 '나' 자신을 가리키는 가장 으뜸가는 글자라오. 그대의 일간은 ${dm.hanja}(${dm.gan}), 곧 ${eumY}의 ${dm.ohaeng}(${OH_HAN[dm.ohaeng]})이니, ${dm.desc} 한가운데에 선 사람이구려. ${shishenLife((s.shishen.month || s.shishen.year || '비견'))}\n곁의 이들은 그대를 두고 "겉은 단단한데 속은 정이 많다" 말하기 쉽소. 삶의 장면으로 이르자면 — 좀처럼 속을 다 내보이지 않다가도, 정작 아끼는 이가 어려움에 처하면 제 일을 제쳐 두고 달려가는 사람이 바로 그대라네. 그 두 결, 곧 단단함과 다정함을 그대 스스로 알고 다독이면, 사람과 일이 한결 순해지리다.`);
+  push(`일주(日柱) 물상 — ${P.day.hanja}(${P.day.han})로 본 그대의 초상`, iljuKo(s));
+  push(`띠 풀이 — ${s.zodiac}띠로 본 그대`, `사주만큼 깊지는 않으나, 태어난 해의 지지 곧 '띠'에도 그 사람의 큰 결이 담긴다오. 그대는 ${s.zodiac}띠로 났으니, ${(ZODIAC_TRAIT[s.zodiac] || {}).ko || '그 해의 기운을 고스란히 받은 사람이라오.'}\n띠는 같은 해에 난 모두가 나누어 가지는 큰 바탕이요, 그 위에 그대만의 여덟 글자가 얹혀 비로소 그대가 되는 것이니 — 띠 풀이는 큰 밑그림으로, 사주 풀이는 그 위에 그려진 세필(細筆)로 읽으면 꼭 맞다오.`);
 
   ['목', '화', '토', '금', '수'].forEach((el) => {
     const c = o.count[el];
@@ -475,13 +578,17 @@ function buildLongKo(s, q) {
   })());
 
   const yg = yearGanzhi(nowY), ng = yearGanzhi(nowY + 1);
-  push(`올해와 다가오는 해 — 세운(歲運)`, `이제 한 해의 기운을 보리다. 올해 ${nowY}년은 ${yg} 해라오. ${cd ? `${cd.shishen} 대운의 큰 결 위에 한 해의 기운이 얹히니, ` : ''}무겁게 밀어붙이기보다 결을 맞춰 한 박자 고른 뒤 나아감이 마땅하오. 봄에 씨를 고르고, 여름에 부지런히 키워, 가을에 거두는 마음이면 그르치지 않으리다.\n이듬해 ${nowY + 1}년은 ${ng} 해이니, 올해 다진 바를 매듭짓고 한 걸음 더 내딛기에 좋소. 미루어 둔 약속과 글자를 또렷이 하고, 사람과의 신의를 새로이 다지면 좋은 기별이 따르리다.`);
+  const ygSS = yg ? shishenOf(dm.hanja, yg[0]) : '';
+  const ngSS = ng ? shishenOf(dm.hanja, ng[0]) : '';
+  push(`올해와 다가오는 해 — 세운(歲運)`, `이제 한 해의 기운을 보리다. 올해 ${nowY}년은 ${yg} 해이니, 그 천간을 그대의 일간에 견주면 십성으로 '${ygSS}'의 해라오. 곧 ${shishenFlow(ygSS)} ${cd ? `여기에 ${cd.shishen} 대운의 큰 결까지 얹히니, 두 기운을 함께 읽어야 하오.` : ''}\n삶의 장면으로는 — ${shishenScene(ygSS)} 봄에 씨를 고르고, 여름에 부지런히 키워, 가을에 거두는 마음이면 그르치지 않으리다.\n이듬해 ${nowY + 1}년은 ${ng} 해, 십성으로 '${ngSS}'의 해라네. ${shishenFlow(ngSS)} 올해 다진 바를 그 결에 맞추어 매듭짓고 한 걸음 더 내딛으면, 좋은 기별이 따르리다.`);
   push('사계절의 리듬 — 언제 무엇을 할까', `한 해 안에서도 철마다 기운이 다르니, 그 결을 따르면 애써 거스르지 않고도 일이 순해진다오. 봄(寅卯辰)엔 새 일을 펴고 사람을 모으며, 여름(巳午未)엔 드러내고 알리시오. 가을(申酉戌)엔 거두고 매듭지으며, 겨울(亥子丑)엔 갈무리하고 쉬며 다음을 준비하시게.\n그대의 용신인 ${ys.element}의 기운이 드는 철엔 특히 일이 순하게 풀리니, 큰일은 되도록 그 무렵에 도모하면 좋겠소.`);
   push('좋은 해와 주의할 해', `${goodYears(s)} 좋은 마디라 하여 가만히 있어도 복이 굴러오는 것은 아니요, 주의할 마디라 하여 무조건 화가 닥치는 것도 아니라오. 좋은 때엔 부지런히 씨를 뿌려 거두고, 주의할 때엔 욕심을 줄이고 말과 매듭을 삼가면, 어느 해든 그르치지 않는 법이라네.\n특히 큰 결단—이사, 혼인, 창업, 큰 계약—은 용신의 기운이 받쳐 주는 해와 달에 맞추면 한결 순하게 풀리니, 서두르지 말고 때를 골라 두시게.`);
   push('올해의 운세 총평', `간추려 이르자면, 올해 ${yg}년의 그대는 ${cd ? `${cd.shishen} 대운의 결 위에서 ` : ''}'벌이기'보다 '갖추기'에 마음을 두는 편이 이로운 한 해라오. 그대의 강한 ${o.dominant}을 베풀어 사람을 얻고, 옅은 ${ys.element}을 채워 균형을 잡으면, 작은 일들이 모여 큰 자리를 닦게 되리다.\n조급해하지 마시게. 그대의 명은 한 해에 터지는 불꽃이 아니라, 해를 거듭하며 두터워지는 나이테 같은 것이라오. 오늘 한 걸음, 내일 한 걸음이 쌓여 끝내 그대가 바라던 자리에 닿으리니, 부디 제 결을 믿고 꾸준히 나아가시게.`);
   chap('제7장 — 신살과 비방(秘方)', '타고난 무늬와, 살림에 쓰는 지혜');
   push('신살(神煞) 풀이', `${s.sinsal.length ? '신살이란 앞서 일렀듯 특정 글자들이 만나 생기는 기운의 무늬라오. 그대 명에 든 신살은 — ' + s.sinsal.map((x) => `${x.name}(${x.mean})`).join(', ') + '이라오. 신살은 길흉을 못 박는 족쇄가 아니라, 그대 기운의 빛깔을 일러주는 무늬일 뿐이니, 두려워 말고 외려 그 결을 살려 쓰시게.' : '그대 명에는 두드러진 신살이 없으니, 외려 기운이 고르고 담백한 명이라 할 수 있소. 무늬가 옅다는 것은 휘둘림이 적다는 뜻이기도 하다오.'}\n또 하나 일러둘 것은 공망(空亡)이라오. 그대의 공망은 ${s.gongmang}이니, 그 글자가 맡은 자리에서는 너무 큰 기대를 걸기보다 마음을 비우는 편이 외려 이롭다네. 비운 자리에 도리어 뜻밖의 복이 깃드는 법이라오.`);
   push('비방(秘方)과 마음가짐 — 오래 지닐 지혜', `끝으로, 살림에 곧장 쓸 수 있는 비방 셋을 일러 두리다.\n하나, 미뤄 둔 한 가지를 이레 안에 매듭지으시게(넘치는 ${o.dominant}을 결실로 돌리는 길이라오). 둘, 용신인 ${ys.hanja}(${ys.element})의 기운을 채우는 습관을 하나 들이시오 — ${ohaengRemedy(ys.element)}. 셋, 큰 결정은 충분히 잔 다음 날 아침에 내리시게. 그대의 ${dm.ohaeng} 기운은 새벽에 가장 맑다오.\n또 오래 지닐 말 셋도 함께 두오 — 넘치는 ${o.dominant}은 베풀고 옅은 ${ys.element}은 채우라. 사람을 곳간처럼 아끼라, 귀인은 거기서 난다. 급할수록 한 박자 고르라, 그대의 결단은 서두르지 않을 때 가장 바르다.`);
+
+  push('간직할 작은 낱말집', `이 책에 나온 말들을 한자리에 모아 두니, 뒷날 다시 펼칠 때 길잡이로 삼으시게.\n▷ 사주(四柱)·팔자(八字) — 태어난 해·달·날·시의 네 기둥, 여덟 글자.\n▷ 일간(日干) — 태어난 날의 천간, 곧 '나'. 그대는 ${dm.hanja}(${dm.gan}).\n▷ 일주(日柱) — 태어난 날의 두 글자. 그대는 ${P.day.hanja}(${P.day.han}).\n▷ 오행(五行) — 목·화·토·금·수 다섯 기운. 그대는 ${o.dominant}이 두텁고 ${o.weakest}이 옅음.\n▷ 십성(十星) — 일간과 다른 글자의 관계 열 가지(비겁·식상·재성·관성·인성의 다섯 무리).\n▷ 신강·신약 — 일간 힘의 세고 약함. 그대는 '${dm.strength}'.\n▷ 용신(用神) — 치우침을 고르는 가장 요긴한 기운. 그대는 ${ys.hanja}(${ys.element}).\n▷ 대운(大運)·세운(歲運) — 십 년의 큰 흐름과 한 해의 기운.\n▷ 십이운성(十二運星) — 기운의 세기를 사람의 한살이 열두 마디에 견준 것.\n▷ 신살(神煞) — 글자들이 만나 생기는 기운의 무늬. 공망(空亡)은 비워 두면 이로운 자리.`);
 
   chap('발(跋) — 글을 맺으며', '그대에게 부치는 마지막 한마디');
   push('맺음말 — 왕후의 편지', `${s.input.name}, 여기까지 함께 와 주어 고맙소. 거듭 이르거니와, 그대의 명은 모자람이 아니라 다만 '치우침'일 뿐이라네. 넘치는 곳은 덜고 옅은 곳은 채우면, 명은 절로 둥글어진다오. 오늘 그대가 물은 "${q || '앞날의 흐름'}"도, 결국 그대가 제 결을 알고 때를 고를 때 가장 환히 열리리다.\n이 한 권을 곳간에 간직하듯 지니고, 흔들리는 밤마다 펼쳐 보시게. 글자는 정해져 있어도, 그 글자를 어떻게 살아 낼지는 오롯이 그대의 몫이라오. 내, 그대의 앞길에 오래도록 볕이 들기를 진심으로 바라오.`);
@@ -543,6 +650,8 @@ function buildLongEn(s, q) {
 
   chap('Chapter 1 — Who You Are', 'the vessel you were born with');
   push('The Day Master — Who You Are', `The Day Master is 'you' within the chart. Born ${y} ${OHAENG_EN[dm.ohaeng]}, you stand at the heart of ${dmDescEn(dm.ohaeng)}. Those near you may say, "firm without, warm within." Know and tend both grains in yourself, and people and work grow gentler around you.`);
+  push(`Your Day Pillar — a Portrait in ${P.day.hanja}`, iljuEn(s));
+  push(`Your Zodiac Year — the ${(JI_SCENE[s.pillars.year.hanja[1]] || {}).aniEn || s.zodiac}`, `Though not as deep as the full chart, the branch of your birth year — your zodiac animal — also carries a broad grain of who you are. Born in the year of the ${(JI_SCENE[s.pillars.year.hanja[1]] || {}).aniEn || s.zodiac}, ${(ZODIAC_TRAIT[s.zodiac] || {}).en || 'you carry the full energy of that year.'}\nThe zodiac is the broad base shared by all born that year; upon it your own eight characters are drawn, and only then do you become you. Read the zodiac as the underdrawing, and the Saju as the fine brushwork upon it.`);
   ['목', '화', '토', '금', '수'].forEach((el) => {
     const c = o.count[el];
     const b = c >= 2 ? OHE[el].strong : (c === 0 ? OHE[el].none : OHE[el].weak);
@@ -559,12 +668,26 @@ function buildLongEn(s, q) {
     push(`Ten Gods — ${SS_HAN_EN[g]}`, `This group governs ${SS_GOV_EN[g]}, and divides into two stars.\n▷ ${sub[0][0]} — ${sub[0][1]}\n▷ ${sub[1][0]} — ${sub[1][1]}\n${presence}`);
   });
   chap('Chapter 3 — The Four Pillars', 'a lifetime held in Year, Month, Day and Hour');
+  push('Before Reading the Four Pillars', `The four pillars are like a mirror that reflects one life in four parts. The Year pillar holds your roots and early years; the Month, your parents, youth and society; the Day, yourself and your partner; the Hour, your children and later years. See which letters sit in each pillar, and you can gauge the color of that season of life.\nUpon each pillar's branch also rests one of the Twelve Stages (十二運星) — the strength of energy likened to the twelve turns of a human life, from birth through growth to gathering-in. Read them together, and each seat grows clearer still.`);
   ['year', 'month', 'day', 'hour'].forEach((k) => {
     const p = P[k];
-    if (!p) { push('Pillar — Hour', 'Your birth time is unknown, so the Hour pillar is left empty. When you learn it, return here and the grain of children and later years will sharpen.'); return; }
+    if (!p) { push('Pillar — Hour', 'Your birth time is unknown, so the Hour pillar is left empty. The Hour holds children, later years and the harvest you leave, so when you learn the time, return here — the color of your later seasons and the bonds with those who follow you will sharpen.'); return; }
     const nm = { year: 'Year', month: 'Month', day: 'Day', hour: 'Hour' }[k];
-    push(`Pillar — ${nm} · ${PILLARE[k].dom}`, `${PILLARE[k].txt} Here sits ${p.hanja}; the stem is ${OHAENG_EN[p.ohaeng]}, the branch ${p.hanja[1]} (${OHAENG_EN[p.jiOhaeng]}), and by the Twelve Stages it carries the grain of '${DI_EN_R[p.dishi] || p.dishi}'. Keep what this seat tells you.`);
+    const era = { year: 'Your childhood and the grace of your forebears raised you here;', month: 'your youth and the field of parents and society shaped you here;', day: 'the partner of a lifetime and your own inner grain are held here;', hour: 'the peace of later years and the bonds of children rest here;' }[k];
+    push(`Pillar — ${nm} · ${PILLARE[k].dom}`, `${PILLARE[k].txt} Here sits ${p.hanja}; the stem (the energy shown outward) is ${OHAENG_EN[p.ohaeng]}, the branch (the foundation held within) is ${p.hanja[1]} (${OHAENG_EN[p.jiOhaeng]}), and by the Twelve Stages it carries the grain of '${DI_EN_R[p.dishi] || p.dishi}'. ${p.jiShishen.length ? `Hidden in that branch are the stars of ${p.jiShishen.map((x) => SHISHEN_EN[x] || x).join(' and ')}, telling of a grain in you not shown on the surface. ` : ''}${era} this pillar is the very color of that season and seat.\nSo do not pass lightly over what it says; give your heart ${k === 'day' ? 'especially to choosing your partner and tending your own mind' : k === 'month' ? 'especially to the ties of work and society' : k === 'year' ? 'especially to weighing your roots and early ground' : 'to watching over your later years and those who follow you'}.`);
   });
+  push('The Eight Characters, One by One', (function () {
+    const order = ['year', 'month', 'day', 'hour'];
+    const nmE = { year: 'Year', month: 'Month', day: 'Day', hour: 'Hour' };
+    let out = 'Lastly, let me touch each of your eight characters in turn. The stem is the mind shown outward; the branch, the ground held within.';
+    order.forEach((k) => {
+      const p = P[k]; if (!p) return;
+      const ssGan = k === 'day' ? 'the Day Master (you yourself)' : (ssEn({ year: s.shishen.year, month: s.shishen.month, hour: s.shishen.hour }[k] || '') || '');
+      out += `\n▷ ${nmE[k]} stem ${p.hanja[0]} — ${p.eumyang === '양' ? 'Yang' : 'Yin'} ${OHAENG_EN[p.ohaeng]} (${OH_HAN[p.ohaeng]})${ssGan ? `, the seat of ${ssGan}.` : '.'}`;
+      out += `\n▷ ${nmE[k]} branch ${p.hanja[1]} — ground of ${OHAENG_EN[p.jiOhaeng]} (${OH_HAN[p.jiOhaeng]}), stage '${DI_EN_R[p.dishi] || p.dishi}'${p.jiShishen.length ? `, holding ${p.jiShishen.map((x) => SHISHEN_EN[x] || x).join(' and ')} within.` : '.'}`;
+    });
+    return out;
+  })());
   chap('Chapter 4 — The Places of Life', 'wealth, work, honor, study, love, family, health, people');
   push('The Path of Wealth', `Wealth is read through Wealth and Output stars. ${grp.has('재성') ? 'You can earn and hold by your own hand,' : 'Steady gathering suits you better than the big strike,'} ${grp.has('식상') ? 'and your craft flows into income.' : 'and trust in people lets wealth follow.'} Coffers fill in the year of precise small promises, not impulsive large moves.`);
   push('Work and Vocation', `By your ${OHAENG_EN[dm.ohaeng]} Day Master and thick ${OHAENG_EN[o.dominant]}, ${careerEn(dm.ohaeng)} ${grp.has('관성') ? 'Officer stars favor organizations and titles,' : 'with thin Officer stars, building your own domain suits you,'} ${grp.has('식상') ? 'and you shine where talent is shown.' : 'and trust grows where you steadily accumulate.'}`);
@@ -592,11 +715,15 @@ function buildLongEn(s, q) {
   })());
   push('Good Years and Cautionary Years', `${goodYearsEn(s)} A favorable stretch does not pour fortune upon the idle, nor does a cautionary one doom you to ruin. In good times, sow and gather diligently; in cautionary times, curb desire and guard your words and knots — and no year goes astray.\nGreat decisions — moving house, marriage, founding a venture, a large contract — run smoothest when matched to the years and months your useful element supports. Do not rush; choose the time.`);
   push('This Year in Summary', `In brief, this ${yg} year asks you, ${cd ? `upon the ${ssEn(cd.shishen)} Luck Pillar, ` : ''}to lean toward 'preparing' rather than 'launching'. Give of your strong ${OHAENG_EN[o.dominant]} to win people, feed your thin ${OHAENG_EN[ys.element]} to find balance, and small matters will gather into a great seat.\nDo not be impatient. Yours is not a destiny that bursts in a single year, but one that thickens like the rings of a tree, season upon season. A step today, a step tomorrow, and at last you reach the seat you longed for — so trust your grain and go steadily on.`);
-  push(`The Year Ahead — ${nowY} & ${nowY + 1}`, `This year is ${yg}. ${cd ? `Upon the grain of the ${ssEn(cd.shishen)} Luck Pillar, ` : ''}rather than forcing, align and take one measured beat before moving. Choose seed in spring, tend in summer, harvest in autumn — and you will not go astray.\nNext year, ${nowY + 1}, is ${ng}: a good time to conclude what you firmed this year and step one pace further. Make promises and documents precise and renew faith with people, and good word follows.`);
+  const ygSS = yg ? shishenOf(dm.hanja, yg[0]) : '';
+  const ngSS = ng ? shishenOf(dm.hanja, ng[0]) : '';
+  push(`The Year Ahead — ${nowY} & ${nowY + 1}`, `This year is ${yg}; weighed against your Day Master, its stem makes it a year of '${ssEn(ygSS)}' — that is, ${shishenFlowEn(ygSS)} ${cd ? `Upon this lies the larger grain of your ${ssEn(cd.shishen)} Luck Pillar, so read the two currents together.` : ''}\nIn life — ${shishenSceneEn(ygSS)}. Choose seed in spring, tend in summer, harvest in autumn — and you will not go astray.\nNext year, ${nowY + 1}, is ${ng}, a year of '${ssEn(ngSS)}': ${shishenFlowEn(ngSS)} Conclude what you firmed this year along that grain and step one pace further, and good word follows.`);
   push('The Rhythm of the Seasons', `In spring (寅卯辰) unfold new work and gather people; in summer (巳午未) reveal and announce; in autumn (申酉戌) harvest and conclude; in winter (亥子丑) store, rest and prepare. In the season your useful element ${OHAENG_EN[ys.element]} enters, matters run especially smooth.`);
   chap('Chapter 6 — Patterns and Remedies', 'the marks you carry, and the wisdom to use them');
   push('Sinsal — the Patterns', `${s.sinsal.length ? 'The sinsal in your chart are — ' + s.sinsal.map((x) => `${x.name} (${x.mean})`).join(', ') + '. They are not shackles of fortune but patterns marking the color of your energy; do not fear them, but use them.' : 'No marked sinsal stand out — yours is rather an even, clear-grained destiny.'} Your Void (空亡) is ${s.gongmang}; in that seat, empty your expectations rather than raise them high.`);
   push('Remedies and Things to Keep', `First, finish within seven days the one thing you have put off (turning your strong ${OHAENG_EN[o.dominant]} into harvest). Second, take up one habit feeding your useful element ${OHAENG_EN[ys.element]} — ${REMEDY_EN[ys.element]}. Third, make large decisions on the morning after full sleep; your ${OHAENG_EN[dm.ohaeng]} is clearest at dawn.\nAnd three words to keep long — give of your abundant ${OHAENG_EN[o.dominant]} and feed your thin ${OHAENG_EN[ys.element]}; treasure people as a storehouse, for benefactors arise there; the more urgent the matter, the more you should take one beat, for your resolve is truest unhurried.`);
+  push('A Small Glossary to Keep', `The words of this book, gathered in one place to guide you when you open it again.\n▷ Saju (四柱) / Palja (八字) — the four pillars and eight characters of your birth year, month, day and hour.\n▷ Day Master (日干) — the stem of your birth day; 'you'. Yours is ${dm.hanja}.\n▷ Day Pillar (日柱) — the two characters of your birth day. Yours is ${P.day.hanja}.\n▷ Five Elements (五行) — Wood, Fire, Earth, Metal, Water. In you, ${OHAENG_EN[o.dominant]} runs thick and ${OHAENG_EN[o.weakest]} thin.\n▷ Ten Gods (十星) — the ten relations between the Day Master and the other letters, in five groups (Companion, Output, Wealth, Officer, Resource).\n▷ Strong / Weak (身强·身弱) — the strength of the Day Master. Yours is '${STRENGTH_EN[dm.strength] || dm.strength}'.\n▷ Useful Element (用神) — the most needful energy that evens the chart. Yours is ${OH_HAN[ys.element]} (${OHAENG_EN[ys.element]}).\n▷ Luck Pillar (大運) / Annual Luck (歲運) — the ten-year current and the single year's energy.\n▷ Twelve Stages (十二運星) — energy's strength likened to the twelve turns of a life.\n▷ Sinsal (神煞) — patterns where letters meet; the Void (空亡) is a seat best kept empty of expectation.`);
+
   chap('Postscript — In Closing', 'a last word, sent to you');
   push('A Closing Letter', `${s.input.name}, your destiny is not lacking but leaning. Lift from where it overflows and feed where it runs thin, and it rounds itself out. The very thing you asked — "${q || 'the flow ahead'}" — opens brightest when you know your own grain and choose your time. Keep this booklet as grain in the storehouse, and unfold it on the nights you waver. May the light fall long upon your road.`);
   return sec;
