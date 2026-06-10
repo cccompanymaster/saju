@@ -33,8 +33,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+KR:wght@400;700;900&display=swap" />
 
-  <link rel="stylesheet" href="/m/css/app.css?v=20260602-i18n" />
-  <link rel="stylesheet" href="/m/css/idol-hero.css?v=20260601-idol" />
+  <link rel="stylesheet" href="/m/css/app.css?v=20260610-moonlit" />
+  <link rel="stylesheet" href="/m/css/idol-hero.css?v=20260610-moonlit" />
 
   <!-- 구조화 데이터(JSON-LD) -->
   <script type="application/ld+json">
@@ -105,6 +105,11 @@
       <section class="idol-hero" aria-label="Joseon Saju">
         <div class="idol-hero__track">
           <div class="idol-hero__stage">
+            <div class="hero-moon" aria-hidden="true"></div>
+            <div class="hero-ridge" aria-hidden="true"><svg viewBox="0 0 390 120" preserveAspectRatio="none">
+              <path d="M0,120 L0,74 Q48,34 92,62 Q128,84 168,56 Q214,26 258,60 Q296,86 342,52 Q368,34 390,58 L390,120 Z" fill="rgba(201,162,63,0.06)"/>
+              <path d="M0,120 L0,96 Q70,62 140,86 Q210,108 280,80 Q336,58 390,88 L390,120 Z" fill="rgba(14,27,46,0.9)" stroke="rgba(201,162,63,0.25)" stroke-width="1"/>
+            </svg></div>
             <div class="idol-dots" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
 
             <div class="idol-frame">
@@ -207,7 +212,7 @@
         </form>
 
         <details class="note-acc">
-          <summary data-i18n="privacy_summary">🔒 How is my information handled?</summary>
+          <summary data-i18n="privacy_summary">How is my information handled?</summary>
           <div class="note-acc__body">
             <p data-i18n="privacy1">Your birth date, time and question are used only to generate this reading.</p>
             <p data-i18n="privacy2">Your result can be re-opened for 2 weeks from the time it is sent, then deleted.</p>
@@ -228,19 +233,19 @@
         <div class="reading-body teaser" id="r-teaser"></div>
 
         <!-- 결제 후크 -->
-        <div class="paid" style="margin-top:26px">
+        <div class="paid">
           <div class="paid__divider" aria-hidden="true">✦ ✦ ✦</div>
           <p class="paid__lead" data-i18n-html="paid_lead">The preview shows the current;<br/>your question makes the answer clear.</p>
 
-          <div class="field" style="margin-bottom:14px;text-align:left">
+          <div class="field u-left">
             <label class="label" for="worry" data-i18n="worry_label">The one thing you most want to know</label>
             <textarea class="textarea" id="worry" rows="4" maxlength="100" data-i18n-ph="ph_worry" placeholder='e.g. "Should I make this move now?"'></textarea>
-            <p class="hero__micro" id="worry-counter" aria-live="polite" style="text-align:right;margin:6px 0 0;color:var(--ink-faint)">0 / 100</p>
+            <p class="u-field-counter" id="worry-counter" aria-live="polite">0 / 100</p>
           </div>
 
-          <button type="button" class="btn btn--kakao is-hidden" id="btn-kakao-login" data-i18n="kakao_login">💬 Sign up / log in with Kakao</button>
+          <button type="button" class="btn btn--kakao is-hidden u-mt-12" id="btn-kakao-login" data-i18n="kakao_login">Sign up / log in with Kakao</button>
 
-          <div class="row-2" style="text-align:left">
+          <div class="row-2 u-left u-mt-16">
             <div class="field">
               <label class="label" for="contact-email" data-i18n="contact_email">Email to receive the result</label>
               <input class="input" type="email" id="contact-email" placeholder="name@email.com" autocomplete="email" inputmode="email" />
@@ -251,7 +256,7 @@
             </div>
           </div>
 
-          <div class="paid__benefits" style="margin-top:14px">
+          <div class="paid__benefits">
             <p data-i18n="benefit1">✓ A clear verdict on your question</p>
             <p data-i18n="benefit2">✓ Integrated Myeongri · Five Elements · Ten Gods</p>
             <p data-i18n="benefit3">✓ Good periods and periods to beware</p>
@@ -259,23 +264,23 @@
             <p data-i18n="benefit5">✓ Sent to email · KakaoTalk · re-openable for 2 weeks</p>
           </div>
 
-          <button type="button" class="btn btn--plum" id="btn-paid" data-i18n="btn_paid">☵ Unlock the in-depth Saju · ₩3,900</button>
+          <button type="button" class="btn btn--plum" id="btn-paid" data-i18n="btn_paid">Unlock the in-depth Saju — ₩3,900</button>
           <p class="form-error is-hidden" id="pay-error"></p>
-          <p class="paid__patent" data-i18n="paid_patent" style="white-space:pre-line">📌 Based on the patent-pending reading structure of Maja-saem Kim Kyung-hee.</p>
+          <p class="paid__patent" data-i18n="paid_patent" style="white-space:pre-line">Based on the patent-pending reading structure of Maja-saem Kim Kyung-hee.</p>
         </div>
       </section>
 
       <!-- ===== 심층 결과 ===== -->
       <section id="paid-result" class="section wrap is-hidden" aria-label="in-depth result">
         <div class="result-head">
-          <p class="result-head__name" id="paid-head" data-i18n="paid_done">✦ In-depth Saju complete</p>
+          <p class="result-head__name" id="paid-head" data-i18n="paid_done">In-depth Saju complete</p>
           <p class="result-head__meta" id="paid-meta"></p>
         </div>
         <div class="reading-body" id="paid-body"></div>
         <div class="delivery-note is-hidden" id="delivery-note"></div>
-        <a class="btn btn--gold is-hidden" id="btn-pdf" style="margin-top:16px" download data-i18n="btn_pdf">📜 Download PDF Saju booklet</a>
-        <button type="button" class="btn btn--kakao is-hidden" id="btn-kakao-channel" style="margin-top:12px" data-i18n="kakao_channel">⭐ Add our KakaoTalk channel</button>
-        <button type="button" class="btn btn--ghost" id="btn-restart" style="margin-top:12px" data-i18n="btn_restart">Start over</button>
+        <a class="btn btn--gold is-hidden u-mt-16" id="btn-pdf" download data-i18n="btn_pdf">Download the PDF Saju booklet</a>
+        <button type="button" class="btn btn--kakao is-hidden u-mt-12" id="btn-kakao-channel" data-i18n="kakao_channel">Add our KakaoTalk channel</button>
+        <button type="button" class="btn btn--ghost u-mt-12" id="btn-restart" data-i18n="btn_restart">Start over</button>
       </section>
 
       <!-- ===== 제작 안내 ===== -->
@@ -298,7 +303,7 @@
         <button type="button" class="lang__btn" data-lang="ENG" aria-pressed="true">EN</button>
         <button type="button" class="lang__btn" data-lang="KOR" aria-pressed="false">한글</button>
       </div>
-      <button type="button" class="btn btn--kakao is-hidden" id="btn-kakao-channel-foot" style="max-width:300px;margin:0 auto 14px" data-i18n="kakao_channel">⭐ Add our KakaoTalk channel</button>
+      <button type="button" class="btn btn--kakao is-hidden" id="btn-kakao-channel-foot" data-i18n="kakao_channel">Add our KakaoTalk channel</button>
       <p class="site-footer__disc" data-i18n="footer_disc">A cultural, symbolic reading of the Saju and Myeongri tradition.</p>
       <p data-i18n="footer_copy">© 2026 Joseon Saju · All Rights Reserved</p>
     </footer>

@@ -100,7 +100,7 @@
     if (!/^\d{4}-\d{2}-\d{2}$/.test(birth.birthdate)) return showErr(err, '생년월일을 YYYY-MM-DD 형식으로 입력해 주세요.');
 
     var btn = $('#btn-free');
-    loading(btn, true, lang() === 'ko' ? '🔮 사주를 풀고 있어요…' : '🔮 Reading your Saju…');
+    loading(btn, true, lang() === 'ko' ? '사주를 풀고 있어요…' : 'Reading your Saju…');
     api('/api/free-reading', Object.assign({ lang: lang() }, birth))
       .then(function (res) {
         state.saju = res.saju; state.birth = birth;
@@ -189,7 +189,7 @@
       var sent = (res.delivery || []).filter(function (d) { return d.ok && !d.skipped; })
         .map(function (d) { return d.channel === 'email' ? (ko ? '이메일' : 'email') : (ko ? '카카오' : 'KakaoTalk'); });
       if (sent.length) {
-        dn.innerHTML = '📨 ' + t('delivered') + sent.join(' · ') + '.'
+        dn.innerHTML = '' + t('delivered') + sent.join(' · ') + '.'
           + (res.reAccessUrl ? '<br/><a href="' + res.reAccessUrl + '" style="color:var(--jade);word-break:break-all">'
               + (ko ? '내 결과 다시 보기 (2주간)' : 'Re-open my result (2 weeks)') + '</a>' : '');
         show(dn);
@@ -298,15 +298,21 @@
     // 하단 고정 CTA
     var cta = $('#sticky-cta'), hero = $('.idol-hero') || $('.hero'), search = $('#search');
     if (cta && hero && search && 'IntersectionObserver' in window) {
-      var hv = true, sv = false;
+      // 히어로·폼·결과 화면에서는 숨김 (결과 화면엔 자체 CTA가 있음)
+      var fr = $('#free-result'), pr = $('#paid-result');
+      var vis = { hero: true, search: false, fr: false, pr: false };
       var io = new IntersectionObserver(function (es) {
         es.forEach(function (en) {
-          if (en.target === hero) hv = en.isIntersecting;
-          if (en.target === search) sv = en.isIntersecting;
+          if (en.target === hero) vis.hero = en.isIntersecting;
+          if (en.target === search) vis.search = en.isIntersecting;
+          if (en.target === fr) vis.fr = en.isIntersecting;
+          if (en.target === pr) vis.pr = en.isIntersecting;
         });
-        cta.classList.toggle('show', !hv && !sv);
-      }, { threshold: 0.15 });
+        cta.classList.toggle('show', !vis.hero && !vis.search && !vis.fr && !vis.pr);
+      }, { threshold: 0.12 });
       io.observe(hero); io.observe(search);
+      if (fr) io.observe(fr);
+      if (pr) io.observe(pr);
     }
 
     // 언어 토글(시각 상태)
@@ -378,7 +384,7 @@
       if (!c.aiEnabled) miss.push('AI');
       var b = document.createElement('div');
       b.className = 'demo-badge';
-      b.textContent = '🧪 데모 모드 · ' + miss.join('·') + ' mock';
+      b.textContent = '데모 모드 · ' + miss.join('·') + ' mock';
       b.title = '실제 키(.env)를 설정하면 자동으로 실서비스로 전환됩니다.';
       document.body.appendChild(b);
     }).catch(function () {});
