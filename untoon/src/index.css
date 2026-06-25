@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0a0f;
+  --color-bg2: #101018;
+  --color-surface: #17171f;
+  --color-surface2: #1e1e29;
+  --color-line: #2a2a37;
+  --color-pink: #ff2d78;
+  --color-pinkdeep: #d40f5a;
+  --color-red: #ff3b3b;
+  --color-yellow: #ffd43b;
+  --color-mut: #9a9aae;
+  --color-mut2: #6e6e80;
+  --color-ink: #f4f4f8;
+
+  /* 정통(traditional) 테마 — 네이비·달빛·한지·금 */
+  --color-navy: #0a1626;
+  --color-navy2: #11233b;
+  --color-hanji: #f3ead6;
+  --color-gold: #c9a23f;
+  --color-vermil: #b23a2e;
+
+  --font-display: "Black Han Sans", "Pretendard", sans-serif;
+  --font-sans: "Pretendard", system-ui, sans-serif;
+  --font-serif: "Nanum Myeongjo", serif;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: #050507;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* 데스크톱 배경: 앱 프레임 바깥 */
+.stage-bg {
+  background:
+    radial-gradient(1100px 700px at 18% -8%, rgba(255, 45, 120, 0.10), transparent 60%),
+    radial-gradient(900px 600px at 110% 12%, rgba(255, 212, 59, 0.06), transparent 55%),
+    #050507;
+}
+
+/* 스크롤바 감추기 */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* 글래스 바 */
+.glass {
+  background: rgba(14, 14, 20, 0.72);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+}
+
+/* 그레인 오버레이 (포스터/히어로 질감) */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.10;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.display { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.01em; }
+.serif { font-family: var(--font-serif); }
+
+/* 한지 질감 (정통 테마 배경) */
+.hanji-tex {
+  background-color: #0a1626;
+  background-image:
+    radial-gradient(900px 500px at 80% -10%, rgba(201,162,63,0.10), transparent 60%),
+    radial-gradient(700px 500px at 0% 110%, rgba(42,86,127,0.18), transparent 60%);
+}
+
+/* 텍스트 글로우 */
+.glow-pink { text-shadow: 0 0 22px rgba(255, 45, 120, 0.55); }
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+.float-slow { animation: float-slow 6s ease-in-out infinite; }
