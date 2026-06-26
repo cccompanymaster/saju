@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { byId, buildReport, krw, promo, categories, type Theme } from '../data'
+import { byId, buildReport, krw, promo, categories, type Theme, type LockedSection } from '../data'
 import { MyeongsikTable, OhaengBars, DaeunTable, FlowGraph, LockedCard, Panel } from '../components/Charts'
 import { CounselorAvatar } from '../components/Counselor'
+import { useStore, daysLeft } from '../store'
 import { IconBack } from '../ui'
 
 export default function Result({
@@ -13,6 +14,10 @@ export default function Result({
   const trad = theme === 'traditional'
   const r = buildReport(name, topic)
   const accentText = trad ? 'text-gold' : 'text-pink'
+
+  const { hasPurchased, orderOf } = useStore()
+  const paid = hasPurchased(id)
+  const order = orderOf(id)
 
   // 남은 혜택 시간 카운트다운
   const [sec, setSec] = useState(promo.benefitMinutes * 60)
@@ -28,7 +33,7 @@ export default function Result({
       {/* 상단 바 */}
       <div className={`z-20 flex items-center justify-between px-4 py-3 ${trad ? 'bg-[#0a1626]/85' : 'glass'} border-b ${trad ? 'border-gold/15' : 'border-line/60'}`}>
         <button onClick={onClose} className="rounded-full p-1.5 active:bg-white/10"><IconBack /></button>
-        <span className={`text-[13px] font-bold ${trad ? 'serif' : ''}`}>{p.title} · 미리보기</span>
+        <span className={`text-[13px] font-bold ${trad ? 'serif' : ''}`}>{p.title} · {paid ? '전체 리포트' : '미리보기'}</span>
         <span className="w-7" />
       </div>
 
@@ -39,7 +44,9 @@ export default function Result({
           <div>
             <p className={`text-[12px] ${accentText}`}>상담사 월아</p>
             <p className={`mt-0.5 text-[14px] leading-snug ${trad ? 'serif' : ''}`}>
-              {r.name} 님, 명식을 펼쳐봤어요.<br />아래는 무료로 보여드리는 미리보기예요.
+              {paid
+                ? <>{r.name} 님의 전체 리포트예요.<br />깊은 해석까지 모두 풀어드렸어요.</>
+                : <>{r.name} 님, 명식을 펼쳐봤어요.<br />아래는 무료로 보여드리는 미리보기예요.</>}
             </p>
           </div>
         </div>
@@ -90,8 +97,10 @@ export default function Result({
           </p>
         </Panel>
 
-        {/* 첫 잠금 카드 */}
-        <LockedCard {...r.locked[0]} theme={theme} onUnlock={onUnlock} />
+        {/* 첫 프리미엄 카드 */}
+        {paid
+          ? <UnlockedCard section={r.locked[0]} theme={theme} />
+          : <LockedCard {...r.locked[0]} theme={theme} onUnlock={onUnlock} />}
 
         {/* 흐름 그래프 */}
         <Panel title="시기별 재물·연애 흐름" sub="올해 12개월" theme={theme}>
@@ -101,11 +110,15 @@ export default function Result({
         <PreviewText section={r.preview[2]} theme={theme} />
         <PreviewText section={r.preview[3]} theme={theme} />
 
-        {/* 나머지 잠금 카드 */}
+        {/* 나머지 프리미엄 카드 */}
         <div className="space-y-3">
-          <p className={`pt-1 text-[13px] font-bold ${accentText}`}>🔒 전체 리포트에서 풀리는 깊은 해석</p>
+          <p className={`pt-1 text-[13px] font-bold ${accentText}`}>
+            {paid ? '✦ 프리미엄 심층 해석' : '🔒 전체 리포트에서 풀리는 깊은 해석'}
+          </p>
           {r.locked.slice(1).map((l) => (
-            <LockedCard key={l.title} {...l} theme={theme} onUnlock={onUnlock} />
+            paid
+              ? <UnlockedCard key={l.title} section={l} theme={theme} />
+              : <LockedCard key={l.title} {...l} theme={theme} onUnlock={onUnlock} />
           ))}
         </div>
 
@@ -117,31 +130,60 @@ export default function Result({
         </div>
       </div>
 
-      {/* 결제 후크 (프레임 하단 고정) */}
-      <div className={`z-30 border-t px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3
-        ${trad ? 'border-gold/20 bg-[#0a1626]/92' : 'glass border-white/10'}`}>
-        <div className="mb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className={`rounded-md px-1.5 py-0.5 text-[10.5px] font-bold ${trad ? 'bg-gold/20 text-gold' : 'bg-pink/20 text-pink'}`}>
-              쿠폰 -{krw(promo.couponWon)}
+      {/* 하단 고정 바 — 미결제: 결제 후크 / 결제완료: 보관 안내 */}
+      {paid ? (
+        <div className={`z-30 border-t px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3
+          ${trad ? 'border-gold/20 bg-[#0a1626]/92' : 'glass border-white/10'}`}>
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-[12.5px] font-bold">
+              <span className={accentText}>✓ 보관함에 보관됨</span>
+              {order && <span className="text-mut2">· 재열람 {daysLeft(order.expiresAt)}일 남음</span>}
             </span>
-            <span className="text-[11px] text-mut">남은 혜택 <b className={accentText}>{mm}:{ss}</b></span>
-          </div>
-          <div className="text-right">
-            {p.origPrice && <span className="mr-1.5 text-[11px] text-mut2 line-through">{krw(p.origPrice)}</span>}
-            <span className={`text-[16px] font-extrabold ${trad ? 'serif text-hanji' : 'text-ink'}`}>{krw(Math.max(0, p.price - promo.couponWon))}</span>
+            <button onClick={onClose} className={`rounded-xl px-4 py-2 text-[13px] font-bold ${trad ? 'bg-gold/20 text-gold' : 'bg-pink/20 text-pink'}`}>
+              닫기
+            </button>
           </div>
         </div>
-        <button onClick={onUnlock}
-          className={`w-full rounded-2xl py-4 text-[16px] font-extrabold text-white shadow-lg active:scale-[0.98] transition
-            ${trad ? 'bg-gradient-to-r from-[#c9a23f] to-[#b23a2e] text-[#1a1206]' : 'bg-gradient-to-r from-pink to-red'}`}>
-          전체 리포트 열기 →
-        </button>
-        <p className="mt-1.5 text-center text-[10.5px] text-mut2">
-          결제 시 <button className="underline">개인정보 수집·이용</button>에 동의하게 됩니다 · {categories.find((c) => c.key === p.category)?.label} 리포트
-        </p>
-      </div>
+      ) : (
+        <div className={`z-30 border-t px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3
+          ${trad ? 'border-gold/20 bg-[#0a1626]/92' : 'glass border-white/10'}`}>
+          <div className="mb-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className={`rounded-md px-1.5 py-0.5 text-[10.5px] font-bold ${trad ? 'bg-gold/20 text-gold' : 'bg-pink/20 text-pink'}`}>
+                쿠폰 -{krw(promo.couponWon)}
+              </span>
+              <span className="text-[11px] text-mut">남은 혜택 <b className={accentText}>{mm}:{ss}</b></span>
+            </div>
+            <div className="text-right">
+              {p.origPrice && <span className="mr-1.5 text-[11px] text-mut2 line-through">{krw(p.origPrice)}</span>}
+              <span className={`text-[16px] font-extrabold ${trad ? 'serif text-hanji' : 'text-ink'}`}>{krw(Math.max(0, p.price - promo.couponWon))}</span>
+            </div>
+          </div>
+          <button onClick={onUnlock}
+            className={`w-full rounded-2xl py-4 text-[16px] font-extrabold text-white shadow-lg active:scale-[0.98] transition
+              ${trad ? 'bg-gradient-to-r from-[#c9a23f] to-[#b23a2e] text-[#1a1206]' : 'bg-gradient-to-r from-pink to-red'}`}>
+            전체 리포트 열기 →
+          </button>
+          <p className="mt-1.5 text-center text-[10.5px] text-mut2">
+            결제 시 <button className="underline">개인정보 수집·이용</button>에 동의하게 됩니다 · {categories.find((c) => c.key === p.category)?.label} 리포트
+          </p>
+        </div>
+      )}
     </div>
+  )
+}
+
+function UnlockedCard({ section, theme }: { section: LockedSection; theme: Theme }) {
+  const trad = theme === 'traditional'
+  return (
+    <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+      className={`rounded-2xl border p-4 ${trad ? 'border-gold/25 bg-[#0e1f33]/60' : 'border-white/10 bg-surface/60'}`}>
+      <div className="mb-1.5 flex items-center gap-1.5">
+        <span className={trad ? 'text-gold' : 'text-pink'}>✦</span>
+        <h4 className={`text-[14px] font-extrabold ${trad ? 'serif text-hanji' : 'text-ink'}`}>{section.title}</h4>
+      </div>
+      <p className="text-[13.5px] leading-relaxed text-ink/85">{section.full}</p>
+    </motion.div>
   )
 }
 

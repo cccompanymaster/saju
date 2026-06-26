@@ -5,11 +5,15 @@ import {
 } from '../data'
 import { Poster, IconBack, IconClose } from '../ui'
 import { CounselorAvatar, SpeechBubble } from '../components/Counselor'
+import { useStore } from '../store'
 import Result from './Result'
 
 type Phase = 'intro' | 'form' | 'loading' | 'result'
+type RequireAuth = (onSuccess: () => void, reason?: string) => void
 
-export default function Detail({ id, onClose }: { id: string; onClose: () => void }) {
+export default function Detail({
+  id, onClose, requireAuth,
+}: { id: string; onClose: () => void; requireAuth: RequireAuth }) {
   const [phase, setPhase] = useState<Phase>('intro')
   const [form, setForm] = useState<FormData>(emptyForm)
   const [pay, setPay] = useState(false)
@@ -33,7 +37,7 @@ export default function Detail({ id, onClose }: { id: string; onClose: () => voi
       </AnimatePresence>
 
       <AnimatePresence>
-        {pay && <PaymentSheet id={id} onClose={() => setPay(false)} />}
+        {pay && <PaymentSheet id={id} requireAuth={requireAuth} onClose={() => setPay(false)} />}
       </AnimatePresence>
     </div>
   )
@@ -304,40 +308,97 @@ function Loading({ id, onDone }: { id: string; onDone: () => void }) {
 }
 
 // ── 결제 시트 ────────────────────────────────────────────────────────
-function PaymentSheet({ id, onClose }: { id: string; onClose: () => void }) {
+function PaymentSheet({
+  id, onClose, requireAuth,
+}: { id: string; onClose: () => void; requireAuth: RequireAuth }) {
   const p = byId(id)
   const trad = p.theme === 'traditional'
-  const final = Math.max(0, p.price - promo.couponWon)
+  const { user, couponAvailable, purchase, hasPurchased } = useStore()
+  const useCoupon = couponAvailable
+  const final = Math.max(0, p.price - (useCoupon ? promo.couponWon : 0))
+
+  const [busy, setBusy] = useState(false)
+  const [done, setDone] = useState(hasPurchased(id))
+  const [err, setErr] = useState('')
+
+  const pay = (method: string) => {
+    setErr('')
+    requireAuth(async () => {
+      setBusy(true)
+      try {
+        await purchase({ productId: id, title: p.title, price: p.price, method, useCoupon, couponWon: promo.couponWon })
+        setDone(true)
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : '결제에 실패했어요.')
+      } finally { setBusy(false) }
+    }, '결제를 위해 로그인이 필요해요.')
+  }
+
+  const accentBtn = trad ? 'bg-[#b23a2e]' : 'bg-pink'
+
   return (
     <>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose} className="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm" />
+        onClick={busy ? undefined : onClose} className="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm" />
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 320 }}
         className={`absolute inset-x-0 bottom-0 z-50 rounded-t-3xl border-t p-5 pb-[max(20px,env(safe-area-inset-bottom))]
           ${trad ? 'border-gold/25 bg-[#0a1626] text-hanji' : 'border-white/10 bg-surface'}`}>
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/20" />
-        <div className="flex items-center justify-between">
-          <h3 className={`text-[17px] font-extrabold ${trad ? 'serif' : ''}`}>전체 리포트 결제</h3>
-          <button onClick={onClose} className="text-mut active:text-ink"><IconClose /></button>
-        </div>
-        <p className="mt-1 text-[13px] text-mut">{p.title} · 프리미엄 해석 전체 열람</p>
 
-        <div className="mt-4 space-y-1.5 rounded-2xl border border-white/8 bg-white/[0.03] p-4 text-[13.5px]">
-          <Row k="상품 금액" v={krw(p.price)} />
-          <Row k="첫 방문 쿠폰" v={`-${krw(promo.couponWon)}`} accent={trad ? 'gold' : 'pink'} />
-          <div className="my-2 h-px bg-white/8" />
-          <Row k="결제 금액" v={krw(final)} big />
-        </div>
+        {done ? (
+          // ── 결제 완료 ──
+          <div className="py-2 text-center">
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 14 }}
+              className={`mx-auto grid h-16 w-16 place-items-center rounded-full ${trad ? 'bg-gold/20' : 'bg-pink/20'}`}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={trad ? 'var(--color-gold)' : 'var(--color-pink)'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg>
+            </motion.div>
+            <h3 className={`mt-4 text-[19px] font-extrabold ${trad ? 'serif' : ''}`}>결제가 완료됐어요</h3>
+            <p className="mt-1.5 text-[13px] text-mut">
+              {p.title} 전체 리포트가 잠금 해제되었어요.<br />보관함에서 2주간 다시 볼 수 있어요.
+            </p>
+            <button onClick={onClose}
+              className={`mt-5 w-full rounded-2xl py-4 text-[16px] font-extrabold text-white active:scale-[0.98] transition ${trad ? 'bg-gradient-to-r from-[#c9a23f] to-[#b23a2e] text-[#1a1206]' : 'bg-gradient-to-r from-pink to-red'}`}>
+              전체 리포트 보기
+            </button>
+          </div>
+        ) : (
+          // ── 결제 진행 ──
+          <>
+            <div className="flex items-center justify-between">
+              <h3 className={`text-[17px] font-extrabold ${trad ? 'serif' : ''}`}>전체 리포트 결제</h3>
+              <button onClick={onClose} className="text-mut active:text-ink"><IconClose /></button>
+            </div>
+            <p className="mt-1 text-[13px] text-mut">{p.title} · 프리미엄 해석 전체 열람</p>
+            {user && <p className="mt-0.5 text-[12px] text-mut2">{user.name} 님으로 결제</p>}
 
-        <div className="mt-3 grid grid-cols-2 gap-2.5">
-          <button className="rounded-xl bg-yellow py-3.5 text-[14px] font-extrabold text-black active:scale-95 transition">카카오페이</button>
-          <button className={`rounded-xl py-3.5 text-[14px] font-extrabold text-white active:scale-95 transition ${trad ? 'bg-[#b23a2e]' : 'bg-pink'}`}>카드 결제</button>
-        </div>
-        <p className="mt-3 text-center text-[11px] leading-relaxed text-mut2">
-          결제 시 <button className="underline">개인정보 수집·이용</button> 및 <button className="underline">결제 약관</button>에 동의합니다.<br />
-          결과는 오락·참고용이며, 결제 후 보관함에서 2주간 다시 볼 수 있어요.
-        </p>
+            <div className="mt-4 space-y-1.5 rounded-2xl border border-white/8 bg-white/[0.03] p-4 text-[13.5px]">
+              <Row k="상품 금액" v={krw(p.price)} />
+              {useCoupon
+                ? <Row k="첫 방문 쿠폰" v={`-${krw(promo.couponWon)}`} accent={trad ? 'gold' : 'pink'} />
+                : <Row k="쿠폰" v="사용 가능한 쿠폰 없음" />}
+              <div className="my-2 h-px bg-white/8" />
+              <Row k="결제 금액" v={krw(final)} big />
+            </div>
+
+            {err && <p className="mt-3 text-center text-[12.5px] text-red">{err}</p>}
+
+            <div className="mt-3 grid grid-cols-2 gap-2.5">
+              <button onClick={() => pay('kakaopay')} disabled={busy}
+                className="rounded-xl bg-yellow py-3.5 text-[14px] font-extrabold text-[#3c1e1e] active:scale-95 transition disabled:opacity-60">
+                {busy ? '결제 중…' : '카카오페이'}
+              </button>
+              <button onClick={() => pay('card')} disabled={busy}
+                className={`rounded-xl py-3.5 text-[14px] font-extrabold text-white active:scale-95 transition disabled:opacity-60 ${accentBtn}`}>
+                {busy ? '결제 중…' : '카드 결제'}
+              </button>
+            </div>
+            <p className="mt-3 text-center text-[11px] leading-relaxed text-mut2">
+              결제 시 <button className="underline">개인정보 수집·이용</button> 및 <button className="underline">결제 약관</button>에 동의합니다.<br />
+              결과는 오락·참고용이며, 결제 후 보관함에서 2주간 다시 볼 수 있어요.
+            </p>
+          </>
+        )}
       </motion.div>
     </>
   )

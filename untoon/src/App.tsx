@@ -8,16 +8,28 @@ import Detail from './screens/Detail'
 import Search from './screens/Search'
 import Library from './screens/Library'
 import Ask from './screens/Ask'
+import AuthModal from './screens/Auth'
+import { useStore } from './store'
 
 type Tab = 'home' | 'ask' | 'search' | 'library'
 
 const COUPON_KEY = 'untoon_coupon_hide_until'
 
+interface AuthReq { onSuccess?: () => void; reason?: string }
+
 export default function App() {
+  const { user } = useStore()
   const [tab, setTab] = useState<Tab>('home')
   const [detailId, setDetailId] = useState<string | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [coupon, setCoupon] = useState(false)
+  const [auth, setAuth] = useState<AuthReq | null>(null)
+
+  // 로그인 필요 동작을 감싸는 게이트
+  const requireAuth = (onSuccess: () => void, reason?: string) => {
+    if (user) onSuccess()
+    else setAuth({ onSuccess, reason })
+  }
 
   // 첫 방문 쿠폰 팝업 (24시간 보지 않기 지원)
   useEffect(() => {
@@ -55,7 +67,7 @@ export default function App() {
             {detailId ? (
               <motion.div key="detail" variants={screenVariants} initial="initial" animate="enter" exit="exit"
                 className="absolute inset-0 overflow-hidden">
-                <Detail id={detailId} onClose={() => setDetailId(null)} />
+                <Detail id={detailId} onClose={() => setDetailId(null)} requireAuth={requireAuth} />
               </motion.div>
             ) : (
               <motion.div key={tab} variants={screenVariants} initial="initial" animate="enter" exit="exit"
@@ -63,7 +75,7 @@ export default function App() {
                 {tab === 'home' && <Home onOpen={openDetail} />}
                 {tab === 'ask' && <Ask />}
                 {tab === 'search' && <Search onOpen={openDetail} />}
-                {tab === 'library' && <Library onOpen={openDetail} />}
+                {tab === 'library' && <Library onOpen={openDetail} requireAuth={requireAuth} />}
               </motion.div>
             )}
           </AnimatePresence>
@@ -83,12 +95,23 @@ export default function App() {
 
         {/* 사이드 메뉴 */}
         <AnimatePresence>
-          {menuOpen && <SideMenu onClose={() => setMenuOpen(false)} onNav={go} />}
+          {menuOpen && (
+            <SideMenu onClose={() => setMenuOpen(false)} onNav={go}
+              onLogin={() => { setMenuOpen(false); setAuth({ reason: '운툰에 로그인하고 리포트를 보관하세요.' }) }} />
+          )}
         </AnimatePresence>
 
         {/* 쿠폰 팝업 */}
         <AnimatePresence>
           {coupon && <CouponModal onClose={() => setCoupon(false)} />}
+        </AnimatePresence>
+
+        {/* 로그인/회원가입 */}
+        <AnimatePresence>
+          {auth && (
+            <AuthModal reason={auth.reason} onClose={() => setAuth(null)}
+              onSuccess={auth.onSuccess} />
+          )}
         </AnimatePresence>
       </div>
     </div>
@@ -107,7 +130,8 @@ function NavBtn({
 }
 
 // ── 사이드 메뉴 ──────────────────────────────────────────────────────
-function SideMenu({ onClose, onNav }: { onClose: () => void; onNav: (t: Tab) => void }) {
+function SideMenu({ onClose, onNav, onLogin }: { onClose: () => void; onNav: (t: Tab) => void; onLogin: () => void }) {
+  const { user, orders, logout } = useStore()
   const items: [Tab, string][] = [['home', '홈'], ['ask', '질문하기'], ['search', '검색'], ['library', '보관함']]
   return (
     <>
@@ -120,7 +144,32 @@ function SideMenu({ onClose, onNav }: { onClose: () => void; onNav: (t: Tab) => 
           <span className="display text-[20px]">메뉴</span>
           <button onClick={onClose} className="text-mut active:text-ink"><IconClose /></button>
         </div>
-        <nav className="mt-6 space-y-1">
+
+        {/* 계정 영역 */}
+        {user ? (
+          <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-pink to-red text-[16px] font-black text-white">
+                {user.name.slice(0, 1)}
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-[15px] font-bold">{user.name} 님</p>
+                <p className="truncate text-[11.5px] text-mut">{user.email}</p>
+              </div>
+            </div>
+            <div className="mt-3 flex items-center justify-between text-[12px]">
+              <span className="text-mut">보유 리포트 <b className="text-ink">{orders.length}</b>개</span>
+              <button onClick={() => { logout(); onClose() }} className="font-semibold text-mut active:text-ink">로그아웃</button>
+            </div>
+          </div>
+        ) : (
+          <button onClick={onLogin}
+            className="mt-5 w-full rounded-2xl bg-gradient-to-r from-pink to-red py-3.5 text-[15px] font-extrabold text-white active:scale-[0.98] transition">
+            로그인 / 회원가입
+          </button>
+        )}
+
+        <nav className="mt-5 space-y-1">
           {items.map(([k, label]) => (
             <button key={k} onClick={() => { onNav(k); onClose() }}
               className="block w-full rounded-xl px-3 py-3 text-left text-[16px] font-semibold active:bg-white/5">

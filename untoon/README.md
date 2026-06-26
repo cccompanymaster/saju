@@ -33,11 +33,20 @@ npm run preview  # 빌드 미리보기
 - **질문하기 / 검색 / 보관함** + 하단 고정 글래스 내비
 - 첫 방문 쿠폰 팝업("24시간 동안 보지 않기"), 정통 상품은 네이비·달빛·한지 테마
 
+## 회원가입 · 결제
+- **회원가입/로그인** — 이메일·비밀번호 가입 + **카카오 간편 로그인**, 약관·개인정보 동의
+- **로그인 게이트** — 결제 시 비로그인이면 로그인 모달을 띄우고, 성공하면 결제를 이어서 진행
+- **결제** — 카카오페이/카드, 첫 방문 쿠폰(-3,000원) 자동 적용, PG 승인 흉내 → 주문 생성
+- **잠금 해제** — 결제 완료 시 프리미엄 심층 해석(블러 카드)이 전체 공개되고 보관함에 보관
+- **보관함** — 계정 정보 + 결제한 리포트 목록, **재열람 2주(14일)** 만료 관리
+- 모든 상태는 `src/store.tsx`(Context)에서 관리하고 localStorage에 영속 — 데모용
+
 ## 데이터 / API 교체
-모든 콘텐츠는 `src/data.ts`에 배열·팩토리로 분리되어 있습니다.
-- `products`, `sections`, `ranking`, `reviews` → 상품/큐레이션 API로 교체
+모든 콘텐츠·상태는 한 곳에 모아 두어 교체가 쉽습니다.
+- `src/data.ts` — `products`, `sections`, `ranking`, `reviews` → 상품/큐레이션 API로 교체
 - `buildReport(name, topic)` → 실제 리포트 생성 API로 교체
-- `promo`, `PaymentSheet` → 실제 결제/쿠폰 연동 지점
+- `src/store.tsx` — `signup/login/loginKakao`(인증 API/OAuth), `purchase`(결제 PG),
+  주문·쿠폰 영속(`read`/`write` helper만 교체하면 서버 API로 전환)
 
 ## 구조
 ```

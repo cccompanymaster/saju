@@ -312,7 +312,7 @@ export const elementColor: Record<Element, string> = {
 export interface Pillar { label: string; stem: string; branch: string; stemEl: Element; branchEl: Element }
 export interface DaeunStep { age: number; gz: string; mood: string; score: number }
 export interface PreviewSection { title: string; body: string }
-export interface LockedSection { title: string; teaser: string }
+export interface LockedSection { title: string; teaser: string; full: string }
 export interface FlowPoint { label: string; money: number; love: number }
 
 export interface Report {
@@ -407,12 +407,34 @@ export function buildReport(name: string, topic: string): Report {
     },
   ]
 
+  const bestMoney = flow.reduce((a, b) => (b.money > a.money ? b : a)).label
+  const bestLove = flow.reduce((a, b) => (b.love > a.love ? b : a)).label
   const locked: LockedSection[] = [
-    { title: '나에게 찾아올 중요한 기회 5가지', teaser: '첫 번째 기회는 의외로 ‘사람’을 통해 들어옵니다. 그 사람의 특징은…' },
-    { title: '피해야 할 사람의 특징', teaser: '당신의 기운을 빼앗아 가는 유형이 분명히 있어요. 특히 …월에 만나는…' },
-    { title: '재물운이 상승하는 결정적 시기', teaser: `재성이 가장 강하게 들어오는 달은 ${flow.reduce((a, b) => (b.money > a.money ? b : a)).label} 전후로…` },
-    { title: '연애·결혼의 결정적 타이밍', teaser: '당신의 인연이 무르익는 해가 따로 있습니다. 그 시작은…' },
-    { title: '올해 조심해야 할 위기와 대처법', teaser: '한 번의 고비가 예정되어 있어요. 다만 미리 알면 충분히…' },
+    {
+      title: '나에게 찾아올 중요한 기회 5가지',
+      teaser: '첫 번째 기회는 의외로 ‘사람’을 통해 들어옵니다. 그 사람의 특징은…',
+      full: `① ${bestMoney} 무렵, 오래 알던 사람을 통해 뜻밖의 제안이 들어옵니다. ② ${daeun[3].age}세 전후 대운의 ‘${daeun[3].mood}’ 흐름에서 ${dominant}의 기운을 살린 일이 크게 열려요. ③ ${weak}을(를) 보완해 주는 동업·협업 인연이 한 번 찾아옵니다. ④ 익숙한 분야가 아닌, 살짝 낯선 영역에서 재능이 인정받는 기회가 있어요. ⑤ 건강·습관을 다잡는 시기가 곧 재물·관계의 기회로 이어집니다. 이 다섯 중 최소 둘은 ‘먼저 손 내미는 쪽’이 잡습니다.`,
+    },
+    {
+      title: '피해야 할 사람의 특징',
+      teaser: '당신의 기운을 빼앗아 가는 유형이 분명히 있어요. 특히 …월에 만나는…',
+      full: `당신의 ${dominant} 기운을 자기 쪽으로만 끌어쓰는 사람을 조심하세요. 말이 앞서고 약속을 가볍게 여기는 유형, 그리고 당신이 ${weak}이 약한 점을 파고들어 결정을 대신하려는 사람이 특히 그렇습니다. 감정 기복이 커서 당신을 자주 ‘맞춰주는 사람’으로 만드는 관계라면, 거리를 두는 것이 운의 흐름을 지키는 길이에요.`,
+    },
+    {
+      title: '재물운이 상승하는 결정적 시기',
+      teaser: `재성이 가장 강하게 들어오는 달은 ${bestMoney} 전후로…`,
+      full: `재성이 가장 강하게 들어오는 시기는 ${bestMoney} 전후입니다. 이때는 새로운 수입원을 ‘시작’하기 좋고, 그 반대로 ${flow.reduce((a, b) => (b.money < a.money ? b : a)).label} 무렵은 큰 지출·투자를 미루는 편이 좋아요. 목돈은 한 번에 들어오기보다 ${dominant}의 기운이 강해지는 흐름을 따라 단계적으로 불어납니다. 무리한 레버리지보다 꾸준함이 당신의 재물 그릇을 키웁니다.`,
+    },
+    {
+      title: '연애·결혼의 결정적 타이밍',
+      teaser: '당신의 인연이 무르익는 해가 따로 있습니다. 그 시작은…',
+      full: `애정의 기운이 가장 무르익는 달은 ${bestLove} 전후입니다. 인연은 ‘새로운 자리’보다 이미 당신 곁에 있던 관계가 깊어지는 형태로 옵니다. ${daeun[3].age}세 전후 대운에서 배우자성이 또렷해지니, 결정을 서두르기보다 이 흐름에 맞춰 진심을 표현하는 것이 좋아요. 당신이 ${weak}을(를) 채워주는 사람과 만날 때 관계가 가장 안정됩니다.`,
+    },
+    {
+      title: '올해 조심해야 할 위기와 대처법',
+      teaser: '한 번의 고비가 예정되어 있어요. 다만 미리 알면 충분히…',
+      full: `‘${daeun[2].mood}’의 대운을 지나는 올해, 한 번의 고비가 건강 혹은 사람 사이에서 찾아올 수 있어요. 다만 미리 알면 충분히 넘길 수 있는 수준입니다. 무리한 확장과 즉흥적인 결정을 피하고, ${weak}의 기운을 보완하는 휴식·정리의 시간을 가지세요. 고비를 넘긴 직후가 오히려 가장 크게 도약하는 구간입니다.`,
+    },
   ]
 
   const oneLine = `겉은 부드럽되 속은 단단한, ${dominant}의 사람`
