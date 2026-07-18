@@ -88,3 +88,50 @@ body {
   50% { transform: translateY(-7px); }
 }
 .float-slow { animation: float-slow 6s ease-in-out infinite; }
+
+/* ── 움직이는 오로라 배경 (히어로/인트로) ─────────────────────────── */
+@keyframes aurora {
+  0%   { transform: translate3d(-8%, -6%, 0) rotate(0deg) scale(1.15); }
+  33%  { transform: translate3d(6%, 4%, 0) rotate(40deg) scale(1.3); }
+  66%  { transform: translate3d(-4%, 8%, 0) rotate(-30deg) scale(1.2); }
+  100% { transform: translate3d(-8%, -6%, 0) rotate(0deg) scale(1.15); }
+}
+.aurora-layer { position: absolute; inset: -25%; pointer-events: none; filter: blur(46px); will-change: transform; }
+.aurora-a { animation: aurora 18s ease-in-out infinite; }
+.aurora-b { animation: aurora 24s ease-in-out infinite reverse; }
+
+/* ── 켄번스(느린 줌/패닝) — 포스터/영상 배경에 시네마틱 무빙 ──────── */
+@keyframes kenburns {
+  0%   { transform: scale(1.05) translate(0, 0); }
+  50%  { transform: scale(1.18) translate(-2%, -2%); }
+  100% { transform: scale(1.05) translate(0, 0); }
+}
+.kenburns { animation: kenburns 20s ease-in-out infinite; will-change: transform; }
+
+/* ── 셔머(반짝임) 스윕 — CTA/뱃지 ───────────────────────────────── */
+@keyframes shimmer { 100% { transform: translateX(220%); } }
+.shimmer { position: relative; overflow: hidden; }
+.shimmer::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%);
+  transform: translateX(-220%); animation: shimmer 3.6s ease-in-out infinite;
+}
+
+/* ── 별 반짝임 (정통 인트로) ─────────────────────────────────────── */
+@keyframes twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+.twinkle { animation: twinkle 3s ease-in-out infinite; }
+
+/* ── 상승 파티클(네온 입자) ─────────────────────────────────────── */
+@keyframes rise {
+  0%   { transform: translateY(20px) scale(0.6); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: translateY(-120px) scale(1); opacity: 0; }
+}
+.particle { position: absolute; border-radius: 9999px; will-change: transform, opacity; animation: rise linear infinite; }
+
+/* 영상 커버 */
+.video-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-a, .aurora-b, .kenburns, .shimmer::after, .twinkle, .particle, .float-slow { animation: none !important; }
+}

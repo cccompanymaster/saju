@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  byId, categories, krw, interests, loveStates, jobStates, promo,
+  byId, categories, krw, interests, loveStates, jobStates, promo, posters, videoUrl,
 } from '../data'
 import { Poster, IconBack, IconClose } from '../ui'
 import { CounselorAvatar, SpeechBubble } from '../components/Counselor'
+import { Particles, Starfield } from '../components/Motion'
 import { useStore } from '../store'
 import Result from './Result'
 
@@ -60,11 +61,19 @@ function Intro({
   return (
     <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className={`relative h-full ${trad ? 'hanji-tex' : ''}`}>
-      {!trad && <Poster poster={p.poster} seed={5} vivid fill />}
+      {!trad && (
+        <>
+          <Poster poster={p.poster} seed={5} vivid fill video={videoUrl(p.video)} motion />
+          {/* 네온 파티클 (영상 없을 때 특히 몰입감↑) */}
+          <Particles count={18} color={posters[p.poster].blob} />
+        </>
+      )}
       {trad && (
         <div className="absolute inset-0">
-          {/* 전통 문양: 달 + 능선 */}
-          <div className="absolute right-7 top-16 h-24 w-24 rounded-full"
+          {p.video && <video className="video-cover kenburns" src={videoUrl(p.video)} autoPlay muted loop playsInline />}
+          {/* 별밤 + 보름달 */}
+          <Starfield count={30} />
+          <div className="float-slow absolute right-7 top-16 h-24 w-24 rounded-full"
             style={{ background: 'radial-gradient(circle at 38% 34%, #f4e6b5, #dcbf6f 60%, #c9a23f)', boxShadow: '0 0 70px 18px rgba(201,162,63,0.25)' }} />
         </div>
       )}
@@ -106,7 +115,7 @@ function Intro({
         <div className="mt-4" onClick={(e) => e.stopPropagation()}>
           {last ? (
             <motion.button initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} onClick={onStart}
-              className={`w-full rounded-2xl py-4 text-[16px] font-extrabold active:scale-[0.98] transition
+              className={`shimmer w-full rounded-2xl py-4 text-[16px] font-extrabold active:scale-[0.98] transition
                 ${trad ? 'bg-gradient-to-r from-[#c9a23f] to-[#b23a2e] text-[#1a1206]' : 'bg-gradient-to-r from-pink to-red text-white'}`}>
               {p.introCta}
             </motion.button>

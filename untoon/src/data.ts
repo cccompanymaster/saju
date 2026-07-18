@@ -61,7 +61,13 @@ export interface Product {
   hero?: boolean
   introCta: string
   counsel: string[]       // 상담사 캐릭터 말풍선(웹툰 컷) 스크립트
+  video?: string          // (선택) 히어로/인트로 배경 루프 영상. public/videos/ 에 넣고 파일명만 지정
+  cardVideo?: string      // (선택) 카드 프리뷰 루프 영상
 }
+
+// public 자산 경로 헬퍼 (base 경로 대응). 힉스필드 mp4는 public/videos/ 에 배치.
+export const asset = (path: string) => import.meta.env.BASE_URL + path.replace(/^\//, '')
+export const videoUrl = (file?: string) => (file ? asset('videos/' + file) : undefined)
 
 // 상담사 캐릭터 — 가상의 브랜드 고유 인물
 export const counselor = {

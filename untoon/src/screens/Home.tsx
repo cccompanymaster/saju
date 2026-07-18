@@ -1,10 +1,11 @@
 import { useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  categories, products, sections, ranking, reviews, byId, krw,
+  categories, products, sections, ranking, reviews, byId, krw, videoUrl,
   type CategoryKey, type Product,
 } from '../data'
 import { Poster, RatingStars, Chip, fadeUp } from '../ui'
+import { Aurora } from '../components/Motion'
 
 export default function Home({ onOpen }: { onOpen: (id: string) => void }) {
   const [cat, setCat] = useState<CategoryKey>('all')
@@ -74,14 +75,16 @@ function HeroCarousel({ list, onOpen }: { list: Product[]; onOpen: (id: string) 
   }
 
   return (
-    <section className="pt-4">
-      <div className="flex items-end justify-between px-4 pb-3">
+    <section className="relative pt-4">
+      {/* 움직이는 오로라 배경 */}
+      <Aurora className="-z-0 h-[260px]" opacity={0.28} />
+      <div className="relative flex items-end justify-between px-4 pb-3">
         <h2 className="display text-[19px] leading-tight">
           지금 가장 많이 보는 <span className="text-pink glow-pink">운툰</span>
         </h2>
       </div>
       <div ref={ref} onScroll={onScroll}
-        className="no-scrollbar flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-4 pb-3">
+        className="no-scrollbar relative flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-4 pb-3">
         {list.map((p, i) => (
           <motion.button
             key={p.id}
@@ -91,7 +94,8 @@ function HeroCarousel({ list, onOpen }: { list: Product[]; onOpen: (id: string) 
             transition={{ delay: i * 0.04 }}
             className="relative w-[78%] shrink-0 snap-start active:scale-[0.98] transition"
           >
-            <Poster poster={p.poster} seed={i + 1} className="aspect-[3/4.1] rounded-3xl">
+            <Poster poster={p.poster} seed={i + 1} video={videoUrl(p.cardVideo || p.video)} motion
+              className="aspect-[3/4.1] rounded-3xl">
               <div className="absolute left-0 top-0 flex w-full items-start justify-between p-4">
                 {p.badge && <Chip tone={p.badge === '재미' ? 'yellow' : 'pink'}>{p.badge}</Chip>}
                 <span className="rounded-full bg-black/40 px-2 py-0.5 text-[10px] text-white/80 backdrop-blur">

@@ -2,11 +2,16 @@ import type { CSSProperties, ReactNode } from 'react'
 import { posters, type PosterKey } from './data'
 
 // ── 그라데이션 웹툰 포스터 (실제 이미지 대용) ──────────────────────────
+// video prop을 주면 mp4/webm 루프 영상을 그라데이션 위에 덮어 재생한다.
+// 영상이 없거나 로딩 전이면 그라데이션이 그대로 폴백으로 보인다.
 export function Poster({
   poster, className = '', children, seed = 0, vivid = false, fill = false,
-}: { poster: PosterKey; className?: string; children?: ReactNode; seed?: number; vivid?: boolean; fill?: boolean }) {
+  video, motion = false,
+}: {
+  poster: PosterKey; className?: string; children?: ReactNode; seed?: number
+  vivid?: boolean; fill?: boolean; video?: string; motion?: boolean
+}) {
   const p = posters[poster]
-  // vivid(풀스크린 몰입)에서는 밝은 색을 화면 안쪽으로 끌어와 강한 이미지를 연출
   // vivid(풀스크린): 강렬한 색을 위쪽(이미지 영역)에 두고 아래로 어두워져 카피가 잘 읽힘
   const bg: CSSProperties = {
     background: vivid
@@ -19,8 +24,12 @@ export function Poster({
   const posCls = fill ? 'absolute inset-0' : 'relative'
   return (
     <div className={`${posCls} overflow-hidden grain ${className}`} style={bg}>
+      {video && (
+        <video className={`video-cover ${motion ? 'kenburns' : ''}`}
+          src={video} autoPlay muted loop playsInline preload="metadata" />
+      )}
       <div
-        className={`absolute rounded-full ${vivid ? 'blur-3xl opacity-90' : 'blur-2xl opacity-60'}`}
+        className={`absolute rounded-full ${video ? 'hidden' : ''} ${vivid ? 'blur-3xl opacity-90' : 'blur-2xl opacity-60'}`}
         style={{
           width: vivid ? '95%' : '62%', height: vivid ? '42%' : '46%',
           left: vivid ? '3%' : `${x}%`, top: vivid ? '6%' : `${y}%`,
@@ -28,7 +37,7 @@ export function Poster({
         }}
       />
       <div
-        className={`absolute rounded-full blur-3xl ${vivid ? 'opacity-70' : 'opacity-30'}`}
+        className={`absolute rounded-full blur-3xl ${video ? 'hidden' : ''} ${vivid ? 'opacity-70' : 'opacity-30'}`}
         style={vivid ? {
           width: '70%', height: '34%', left: '20%', top: '30%',
           background: `radial-gradient(circle, ${p.to}, transparent 72%)`,
